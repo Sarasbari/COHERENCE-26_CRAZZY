@@ -4,7 +4,7 @@ import Header from './Header';
 
 export default function DashboardLayout() {
     return (
-        <div className="flex min-h-screen bg-[#0f0f13]">
+        <div className="flex min-h-screen bg-[#F8FAFC]">
             <Sidebar />
             <div className="flex-1 ml-60 flex flex-col">
                 <Header />

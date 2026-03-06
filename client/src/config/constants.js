@@ -5,17 +5,17 @@ export const DIVISIONS = {
     amravati: {
         name: 'Amravati Division',
         districts: ['Amravati', 'Akola', 'Buldhana', 'Washim', 'Yavatmal'],
-        color: '#3b82f6',
+        color: '#3B82F6',
     },
     nagpur: {
         name: 'Nagpur Division',
         districts: ['Nagpur', 'Bhandara', 'Chandrapur', 'Gadchiroli', 'Gondia', 'Wardha'],
-        color: '#8b5cf6',
+        color: '#1E3A8A',
     },
     aurangabad: {
         name: 'Aurangabad Division',
         districts: ['Aurangabad', 'Beed', 'Hingoli', 'Jalna', 'Latur', 'Nanded', 'Osmanabad', 'Parbhani'],
-        color: '#06b6d4',
+        color: '#60A5FA',
     },
 };
 
@@ -23,14 +23,14 @@ export const DIVISIONS = {
 // DEPARTMENTS
 // ========================
 export const DEPARTMENTS = [
-    { id: 'education', name: 'Education', icon: '📚', color: '#3b82f6' },
-    { id: 'public_health', name: 'Public Health', icon: '🏥', color: '#ef4444' },
-    { id: 'pwd', name: 'Public Works (PWD)', icon: '🏗️', color: '#f97316' },
-    { id: 'agriculture', name: 'Agriculture', icon: '🌾', color: '#22c55e' },
-    { id: 'rural_dev', name: 'Rural Development', icon: '🏘️', color: '#a855f7' },
-    { id: 'urban_dev', name: 'Urban Development', icon: '🏙️', color: '#06b6d4' },
-    { id: 'water_supply', name: 'Water Supply & Sanitation', icon: '💧', color: '#0ea5e9' },
-    { id: 'revenue_forest', name: 'Revenue & Forest', icon: '🌳', color: '#84cc16' },
+    { id: 'education', name: 'Education', icon: '📚', color: '#3B82F6' },
+    { id: 'public_health', name: 'Public Health', icon: '🏥', color: '#DC2626' },
+    { id: 'pwd', name: 'Public Works (PWD)', icon: '🏗️', color: '#F59E0B' },
+    { id: 'agriculture', name: 'Agriculture', icon: '🌾', color: '#16A34A' },
+    { id: 'rural_dev', name: 'Rural Development', icon: '🏘️', color: '#1E3A8A' },
+    { id: 'urban_dev', name: 'Urban Development', icon: '🏙️', color: '#60A5FA' },
+    { id: 'water_supply', name: 'Water Supply & Sanitation', icon: '💧', color: '#3B82F6' },
+    { id: 'revenue_forest', name: 'Revenue & Forest', icon: '🌳', color: '#16A34A' },
 ];
 
 // ========================

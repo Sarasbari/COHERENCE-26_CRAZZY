@@ -12,17 +12,17 @@ const areaData = [
 ];
 
 const donutData = [
-    { name: 'Public Works', value: 40, color: '#ef4444' },
-    { name: 'Healthcare', value: 28, color: '#f97316' },
-    { name: 'Education', value: 20, color: '#eab308' },
-    { name: 'Other', value: 12, color: '#3b82f6' },
+    { name: 'Public Works', value: 40, color: '#DC2626' },
+    { name: 'Healthcare', value: 28, color: '#F59E0B' },
+    { name: 'Education', value: 20, color: '#3B82F6' },
+    { name: 'Other', value: 12, color: '#60A5FA' },
 ];
 
 const districtData = [
-    { district: 'Pune', allocated: '₹45,200', utilization: 78, flagged: '₹120', flagColor: '#6b7280', risk: 'Low', riskColor: '#22c55e' },
-    { district: 'Nagpur', allocated: '₹32,150', utilization: 42, flagged: '₹840', flagColor: '#ef4444', risk: 'High', riskColor: '#ef4444' },
-    { district: 'Mumbai City', allocated: '₹85,000', utilization: 65, flagged: '₹320', flagColor: '#6b7280', risk: 'Medium', riskColor: '#f97316' },
-    { district: 'Aurangabad', allocated: '₹39,400', utilization: 39, flagged: '₹39', flagColor: '#6b7280', risk: 'High', riskColor: '#ef4444' },
+    { district: 'Pune', allocated: '₹45,200', utilization: 78, flagged: '₹120', flagColor: '#64748B', risk: 'Low', riskColor: '#16A34A' },
+    { district: 'Nagpur', allocated: '₹32,150', utilization: 42, flagged: '₹840', flagColor: '#DC2626', risk: 'High', riskColor: '#DC2626' },
+    { district: 'Mumbai City', allocated: '₹85,000', utilization: 65, flagged: '₹320', flagColor: '#64748B', risk: 'Medium', riskColor: '#F59E0B' },
+    { district: 'Aurangabad', allocated: '₹39,400', utilization: 39, flagged: '₹39', flagColor: '#64748B', risk: 'High', riskColor: '#DC2626' },
 ];
 
 // ─── KPI Card Component ──────────────────────────────────────
@@ -33,16 +33,16 @@ function KPICard({ label, value, sub, subColor, icon: Icon, iconColor, progress,
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: delay * 0.1 }}
-            className="bg-[#1e1e28] border border-[#2a2a3a] rounded-xl p-5 relative"
+            className="bg-white border border-[#E2E8F0] rounded-xl p-5 relative shadow-card"
         >
             <div className="flex items-start justify-between mb-3">
-                <p className="text-sm text-[#6b7280]">{label}</p>
+                <p className="text-sm text-[#64748B]">{label}</p>
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center`}
                     style={{ backgroundColor: `${iconColor}15` }}>
                     <Icon size={18} style={{ color: iconColor }} />
                 </div>
             </div>
-            <p className="text-2xl font-bold text-white mb-1" style={subColor === '#f97316' ? { color: '#f97316' } : {}}>
+            <p className="text-2xl font-bold text-[#0F172A] mb-1" style={subColor === '#F59E0B' ? { color: '#F59E0B' } : {}}>
                 {value}
             </p>
             <p className="text-xs flex items-center gap-1" style={{ color: subColor }}>
@@ -50,7 +50,7 @@ function KPICard({ label, value, sub, subColor, icon: Icon, iconColor, progress,
                 {sub}
             </p>
             {progress !== undefined && (
-                <div className="mt-3 h-1.5 bg-[#2a2a3a] rounded-full overflow-hidden">
+                <div className="mt-3 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
@@ -69,8 +69,8 @@ function KPICard({ label, value, sub, subColor, icon: Icon, iconColor, progress,
 function CustomTooltip({ active, payload, label }) {
     if (!active || !payload) return null;
     return (
-        <div className="bg-[#1e1e28] border border-[#2a2a3a] rounded-lg px-3 py-2 text-xs shadow-xl">
-            <p className="text-white font-medium mb-1">{label}</p>
+        <div className="bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-xs shadow-elevated">
+            <p className="text-[#0F172A] font-medium mb-1">{label}</p>
             {payload.map((p, i) => (
                 <p key={i} style={{ color: p.color }}>
                     {p.name}: ₹{(p.value / 1000).toFixed(0)}k Cr
@@ -91,38 +91,38 @@ export default function Dashboard() {
                     label="Total Budget"
                     value="₹4.5 Lakh Cr"
                     sub="+5.2% from last year"
-                    subColor="#22c55e"
+                    subColor="#16A34A"
                     icon={Wallet}
-                    iconColor="#f97316"
+                    iconColor="#1E3A8A"
                     delay={0}
                 />
                 <KPICard
                     label="Funds Released"
                     value="₹2.1 Lakh Cr"
                     sub="+3.1% utilization"
-                    subColor="#22c55e"
+                    subColor="#16A34A"
                     icon={Monitor}
-                    iconColor="#3b82f6"
+                    iconColor="#3B82F6"
                     delay={1}
                     progress={46}
-                    progressColor="#3b82f6"
+                    progressColor="#3B82F6"
                 />
                 <KPICard
                     label="Detected Leakages"
                     value="₹1,200 Cr"
                     sub="+1.5% increase"
-                    subColor="#f97316"
+                    subColor="#F59E0B"
                     icon={AlertTriangle}
-                    iconColor="#f97316"
+                    iconColor="#F59E0B"
                     delay={2}
                 />
                 <KPICard
                     label="Risk Score"
                     value="High Risk"
                     sub="Requires attention in 4 districts"
-                    subColor="#6b7280"
+                    subColor="#64748B"
                     icon={ShieldAlert}
-                    iconColor="#f97316"
+                    iconColor="#DC2626"
                     delay={3}
                 />
             </div>
@@ -134,26 +134,26 @@ export default function Dashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="col-span-3 bg-[#1e1e28] border border-[#2a2a3a] rounded-xl p-5"
+                    className="col-span-3 bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-card"
                 >
                     <div className="flex items-start justify-between mb-6">
                         <div>
-                            <h3 className="text-base font-semibold text-white">Allocated vs Released Funds</h3>
-                            <p className="text-xs text-[#6b7280] mt-1">Cumulative comparison over FY 2023-24</p>
+                            <h3 className="text-base font-semibold text-[#0F172A]">Allocated vs Released Funds</h3>
+                            <p className="text-xs text-[#64748B] mt-1">Cumulative comparison over FY 2023-24</p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-4 text-xs">
                                 <span className="flex items-center gap-1.5">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-[#3b82f6]" />
-                                    <span className="text-[#6b7280]">Allocated</span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]" />
+                                    <span className="text-[#64748B]">Allocated</span>
                                 </span>
                                 <span className="flex items-center gap-1.5">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-[#f97316]" />
-                                    <span className="text-[#6b7280]">Released</span>
+                                    <span className="w-2.5 h-2.5 rounded-full bg-[#60A5FA]" />
+                                    <span className="text-[#64748B]">Released</span>
                                 </span>
                             </div>
-                            <button className="p-1 rounded hover:bg-white/5">
-                                <MoreVertical size={16} className="text-[#6b7280]" />
+                            <button className="p-1 rounded hover:bg-[#F1F5F9]">
+                                <MoreVertical size={16} className="text-[#94A3B8]" />
                             </button>
                         </div>
                     </div>
@@ -161,22 +161,22 @@ export default function Dashboard() {
                         <AreaChart data={areaData}>
                             <defs>
                                 <linearGradient id="gradAllocated" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.02} />
+                                    <stop offset="0%" stopColor="#1E3A8A" stopOpacity={0.2} />
+                                    <stop offset="100%" stopColor="#1E3A8A" stopOpacity={0.02} />
                                 </linearGradient>
                                 <linearGradient id="gradReleased" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#f97316" stopOpacity={0.3} />
-                                    <stop offset="100%" stopColor="#f97316" stopOpacity={0.02} />
+                                    <stop offset="0%" stopColor="#60A5FA" stopOpacity={0.2} />
+                                    <stop offset="100%" stopColor="#60A5FA" stopOpacity={0.02} />
                                 </linearGradient>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3a" vertical={false} />
-                            <XAxis dataKey="name" stroke="#6b7280" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-                            <YAxis stroke="#6b7280" tick={{ fontSize: 12 }} axisLine={false} tickLine={false}
+                            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                            <XAxis dataKey="name" stroke="#94A3B8" tick={{ fontSize: 12, fill: '#64748B' }} axisLine={false} tickLine={false} />
+                            <YAxis stroke="#94A3B8" tick={{ fontSize: 12, fill: '#64748B' }} axisLine={false} tickLine={false}
                                 tickFormatter={(v) => v === 0 ? '0' : `${v / 1000}k`} />
                             <Tooltip content={<CustomTooltip />} />
-                            <Area type="monotone" dataKey="allocated" stroke="#3b82f6" strokeWidth={2}
+                            <Area type="monotone" dataKey="allocated" stroke="#1E3A8A" strokeWidth={2}
                                 fill="url(#gradAllocated)" name="Allocated" />
-                            <Area type="monotone" dataKey="released" stroke="#f97316" strokeWidth={2}
+                            <Area type="monotone" dataKey="released" stroke="#60A5FA" strokeWidth={2}
                                 fill="url(#gradReleased)" name="Released" />
                         </AreaChart>
                     </ResponsiveContainer>
@@ -187,12 +187,12 @@ export default function Dashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="col-span-2 bg-[#1e1e28] border border-[#2a2a3a] rounded-xl p-5"
+                    className="col-span-2 bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-card"
                 >
                     <div className="flex items-start justify-between mb-4">
-                        <h3 className="text-base font-semibold text-white">Leakage by Dept</h3>
-                        <button className="p-1 rounded hover:bg-white/5">
-                            <MoreVertical size={16} className="text-[#6b7280]" />
+                        <h3 className="text-base font-semibold text-[#0F172A]">Leakage by Dept</h3>
+                        <button className="p-1 rounded hover:bg-[#F1F5F9]">
+                            <MoreVertical size={16} className="text-[#94A3B8]" />
                         </button>
                     </div>
                     <div className="flex flex-col items-center">
@@ -216,8 +216,8 @@ export default function Dashboard() {
                             </ResponsiveContainer>
                             {/* Center label */}
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-xs text-[#6b7280]">Total</span>
-                                <span className="text-lg font-bold text-white">1.2K Cr</span>
+                                <span className="text-xs text-[#64748B]">Total</span>
+                                <span className="text-lg font-bold text-[#0F172A]">1.2K Cr</span>
                             </div>
                         </div>
                         {/* Legend */}
@@ -226,9 +226,9 @@ export default function Dashboard() {
                                 <div key={i} className="flex items-center justify-between text-sm">
                                     <span className="flex items-center gap-2">
                                         <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                                        <span className="text-[#6b7280]">{item.name}</span>
+                                        <span className="text-[#64748B]">{item.name}</span>
                                     </span>
-                                    <span className="text-white font-medium">{item.value}%</span>
+                                    <span className="text-[#0F172A] font-medium">{item.value}%</span>
                                 </div>
                             ))}
                         </div>
@@ -241,53 +241,53 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="bg-[#1e1e28] border border-[#2a2a3a] rounded-xl p-5"
+                className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-card"
             >
                 <div className="flex items-start justify-between mb-6">
                     <div>
-                        <h3 className="text-base font-semibold text-white">District Performance</h3>
-                        <p className="text-xs text-[#6b7280] mt-1">Detailed utilization and risk analysis by district.</p>
+                        <h3 className="text-base font-semibold text-[#0F172A]">District Performance</h3>
+                        <p className="text-xs text-[#64748B] mt-1">Detailed utilization and risk analysis by district.</p>
                     </div>
                     <div className="relative">
-                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7280]" />
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
                         <input
                             type="text"
                             placeholder="Search districts..."
-                            className="pl-8 pr-4 py-2 bg-[#15151d] border border-[#2a2a3a] rounded-lg text-sm text-white placeholder:text-[#6b7280] focus:outline-none focus:border-[#f97316]/50 w-56"
+                            className="pl-8 pr-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#3B82F6] w-56"
                         />
                     </div>
                 </div>
 
                 <table className="w-full">
                     <thead>
-                        <tr className="border-b border-[#2a2a3a]">
-                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#6b7280] font-medium">District</th>
-                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#6b7280] font-medium">Allocated (Cr)</th>
-                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#6b7280] font-medium">Utilization</th>
-                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#6b7280] font-medium">Flagged Amt.</th>
-                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#6b7280] font-medium">Risk Level</th>
+                        <tr className="border-b border-[#E2E8F0]">
+                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">District</th>
+                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Allocated (Cr)</th>
+                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Utilization</th>
+                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Flagged Amt.</th>
+                            <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Risk Level</th>
                         </tr>
                     </thead>
                     <tbody>
                         {districtData.map((row, i) => {
                             const barColor = row.utilization >= 70
-                                ? '#22c55e'
+                                ? '#16A34A'
                                 : row.utilization >= 55
-                                    ? '#f97316'
-                                    : '#ef4444';
+                                    ? '#F59E0B'
+                                    : '#DC2626';
                             return (
-                                <tr key={i} className="border-b border-[#2a2a3a]/50 hover:bg-white/[0.02] transition-colors">
-                                    <td className="py-3.5 px-2 text-sm text-white font-medium">{row.district}</td>
-                                    <td className="py-3.5 px-2 text-sm text-white">{row.allocated}</td>
+                                <tr key={i} className="border-b border-[#F1F5F9] hover:bg-[#F8FAFC] transition-colors">
+                                    <td className="py-3.5 px-2 text-sm text-[#0F172A] font-medium">{row.district}</td>
+                                    <td className="py-3.5 px-2 text-sm text-[#0F172A]">{row.allocated}</td>
                                     <td className="py-3.5 px-2">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-24 h-1.5 bg-[#2a2a3a] rounded-full overflow-hidden">
+                                            <div className="w-24 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
                                                 <div
                                                     className="h-full rounded-full transition-all"
                                                     style={{ width: `${row.utilization}%`, backgroundColor: barColor }}
                                                 />
                                             </div>
-                                            <span className="text-sm text-white">{row.utilization}%</span>
+                                            <span className="text-sm text-[#0F172A]">{row.utilization}%</span>
                                         </div>
                                     </td>
                                     <td className="py-3.5 px-2 text-sm" style={{ color: row.flagColor }}>{row.flagged}</td>
@@ -295,9 +295,9 @@ export default function Dashboard() {
                                         <span
                                             className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                             style={{
-                                                backgroundColor: `${row.riskColor}20`,
+                                                backgroundColor: `${row.riskColor}15`,
                                                 color: row.riskColor,
-                                                border: `1px solid ${row.riskColor}30`,
+                                                border: `1px solid ${row.riskColor}25`,
                                             }}
                                         >
                                             {row.risk}

@@ -32,13 +32,13 @@ export default function Predict() {
         setAdviceLoading(false);
     };
 
-    if (loading) return <div className="flex items-center justify-center h-96"><div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" /></div>;
+    if (loading) return <div className="flex items-center justify-center h-96"><div className="w-8 h-8 border-2 border-[#1E3A8A] border-t-transparent rounded-full animate-spin" /></div>;
 
     return (
         <div className="space-y-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h2 className="text-2xl font-bold text-white mb-1">Predictions & Optimization</h2>
-                <p className="text-white/40 text-sm">Fund lapse forecasting and reallocation recommendations</p>
+                <h2 className="text-2xl font-bold text-[#0F172A] mb-1">Predictions & Optimization</h2>
+                <p className="text-[#64748B] text-sm">Fund lapse forecasting and reallocation recommendations</p>
             </motion.div>
 
             {/* Fund Lapse Risk Gauges */}
@@ -48,7 +48,7 @@ export default function Predict() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {deptUtilization.map((dept, i) => {
                         const risk = dept.utilization < 40 ? 'critical' : dept.utilization < 60 ? 'high' : dept.utilization < 80 ? 'medium' : 'low';
-                        const riskColors = { critical: '#ef4444', high: '#f97316', medium: '#eab308', low: '#22c55e' };
+                        const riskColors = { critical: '#DC2626', high: '#F59E0B', medium: '#F59E0B', low: '#16A34A' };
                         return (
                             <motion.div
                                 key={dept.department}
@@ -60,7 +60,7 @@ export default function Predict() {
                                 {/* Circular gauge */}
                                 <div className="relative w-24 h-24 mx-auto mb-3">
                                     <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                                        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke="#E2E8F0" strokeWidth="8" />
                                         <motion.circle
                                             cx="50" cy="50" r="40" fill="none"
                                             stroke={riskColors[risk]}
@@ -73,10 +73,10 @@ export default function Predict() {
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-lg font-bold text-white">{dept.utilization.toFixed(0)}%</span>
+                                        <span className="text-lg font-bold text-[#0F172A]">{dept.utilization.toFixed(0)}%</span>
                                     </div>
                                 </div>
-                                <p className="text-xs text-white/60 font-medium truncate">{dept.departmentName}</p>
+                                <p className="text-xs text-[#64748B] font-medium truncate">{dept.departmentName}</p>
                                 <span className={`mt-1 inline-block badge-${risk}`}>{risk}</span>
                             </motion.div>
                         );
@@ -95,20 +95,20 @@ export default function Predict() {
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-white/10">
-                                    <th className="text-left py-3 px-4 text-white/50">Department</th>
-                                    <th className="text-left py-3 px-4 text-white/50">Division</th>
-                                    <th className="text-left py-3 px-4 text-white/50">FY</th>
-                                    <th className="text-right py-3 px-4 text-white/50">Projected Util.</th>
-                                    <th className="text-right py-3 px-4 text-white/50">Lapse Amount</th>
+                                <tr className="border-b border-[#E2E8F0]">
+                                    <th className="text-left py-3 px-4 text-[#64748B]">Department</th>
+                                    <th className="text-left py-3 px-4 text-[#64748B]">Division</th>
+                                    <th className="text-left py-3 px-4 text-[#64748B]">FY</th>
+                                    <th className="text-right py-3 px-4 text-[#64748B]">Projected Util.</th>
+                                    <th className="text-right py-3 px-4 text-[#64748B]">Lapse Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {lapsePredictions.map((pred, i) => (
-                                    <tr key={i} className="border-b border-white/5">
-                                        <td className="py-3 px-4 text-white/80">{pred.departmentName}</td>
-                                        <td className="py-3 px-4 text-white/60">{pred.divisionName}</td>
-                                        <td className="py-3 px-4 text-white/60">FY {pred.fiscalYear}</td>
+                                    <tr key={i} className="border-b border-[#F1F5F9]">
+                                        <td className="py-3 px-4 text-[#0F172A]">{pred.departmentName}</td>
+                                        <td className="py-3 px-4 text-[#64748B]">{pred.divisionName}</td>
+                                        <td className="py-3 px-4 text-[#64748B]">FY {pred.fiscalYear}</td>
                                         <td className="py-3 px-4 text-right text-severity-high font-medium">{pred.projectedUtilization.toFixed(1)}%</td>
                                         <td className="py-3 px-4 text-right text-severity-critical font-medium">{formatCurrency(pred.lapseAmount)}</td>
                                     </tr>
@@ -124,7 +124,7 @@ export default function Predict() {
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h3 className="section-title flex items-center gap-2">
-                            <Sliders size={18} className="text-gold-400" />
+                            <Sliders size={18} className="text-[#1E3A8A]" />
                             Reallocation Simulator
                         </h3>
                         <p className="section-subtitle">AI-powered fund reallocation recommendations</p>
@@ -135,8 +135,8 @@ export default function Predict() {
                     </button>
                 </div>
                 {reallocationAdvice && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-4 bg-gold-500/5 border border-gold-500/10 rounded-xl">
-                        <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">{reallocationAdvice}</p>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-4 bg-[#1E3A8A]/5 border border-[#1E3A8A]/10 rounded-xl">
+                        <p className="text-sm text-[#334155] leading-relaxed whitespace-pre-wrap">{reallocationAdvice}</p>
                     </motion.div>
                 )}
             </motion.div>

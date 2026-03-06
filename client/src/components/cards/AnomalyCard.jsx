@@ -32,9 +32,9 @@ export default function AnomalyCard({ anomaly, onClick, delay = 0 }) {
             className="glass-card-hover p-4 cursor-pointer"
         >
             <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg ${anomaly.severity === 'critical' ? 'bg-severity-critical/20' :
-                        anomaly.severity === 'high' ? 'bg-severity-high/20' :
-                            'bg-severity-medium/20'
+                <div className={`p-2 rounded-lg ${anomaly.severity === 'critical' ? 'bg-severity-critical/10' :
+                        anomaly.severity === 'high' ? 'bg-severity-high/10' :
+                            'bg-severity-medium/10'
                     }`}>
                     <TypeIcon size={18} className={
                         anomaly.severity === 'critical' ? 'text-severity-critical' :
@@ -46,12 +46,12 @@ export default function AnomalyCard({ anomaly, onClick, delay = 0 }) {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                         <span className={severityClass[anomaly.severity]}>{anomaly.severity}</span>
-                        <span className="text-xs text-white/30">{config.label}</span>
+                        <span className="text-xs text-[#94A3B8]">{config.label}</span>
                     </div>
 
-                    <p className="text-sm text-white/80 mb-1.5 line-clamp-2">{anomaly.description}</p>
+                    <p className="text-sm text-[#0F172A] mb-1.5 line-clamp-2">{anomaly.description}</p>
 
-                    <div className="flex items-center gap-3 text-[11px] text-white/40">
+                    <div className="flex items-center gap-3 text-[11px] text-[#94A3B8]">
                         <span>{anomaly.district}</span>
                         <span>•</span>
                         <span>{anomaly.departmentName}</span>
@@ -60,13 +60,13 @@ export default function AnomalyCard({ anomaly, onClick, delay = 0 }) {
                     </div>
 
                     <div className="flex items-center gap-4 mt-2 text-xs">
-                        <span className="text-white/50">
-                            Allocated: <span className="text-white/70 font-medium">{formatCurrency(anomaly.allocated)}</span>
+                        <span className="text-[#64748B]">
+                            Allocated: <span className="text-[#0F172A] font-medium">{formatCurrency(anomaly.allocated)}</span>
                         </span>
-                        <span className="text-white/50">
-                            Spent: <span className="text-white/70 font-medium">{formatCurrency(anomaly.spent)}</span>
+                        <span className="text-[#64748B]">
+                            Spent: <span className="text-[#0F172A] font-medium">{formatCurrency(anomaly.spent)}</span>
                         </span>
-                        <span className="text-[10px] text-white/30 ml-auto">
+                        <span className="text-[10px] text-[#94A3B8] ml-auto">
                             Detected by: {anomaly.detectedBy}
                         </span>
                     </div>
