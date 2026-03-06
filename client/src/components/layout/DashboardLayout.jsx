@@ -4,9 +4,9 @@ import Header from './Header';
 
 export default function DashboardLayout() {
     return (
-        <div className="flex min-h-screen bg-surface-950">
+        <div className="flex min-h-screen bg-[#0f0f13]">
             <Sidebar />
-            <div className="flex-1 ml-64 flex flex-col">
+            <div className="flex-1 ml-60 flex flex-col">
                 <Header />
                 <main className="flex-1 p-6 overflow-y-auto">
                     <Outlet />
