@@ -1,0 +1,58 @@
+node.exe : [31m???[39m Build failed 
+in 2.86s
+At C:\nvm4w\nodejs\npx.ps1:16 char:5
++     & "$basedir/node$exe"  "$basedir
+/node_modules/npm/bin/npx-cli.js" ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpec 
+   ified: ([31m???[39m Build faile  
+  d in 2.86s:String) [], RemoteExce   
+ ption
+    + FullyQualifiedErrorId : NativeC 
+   ommandError
+ 
+[31merror during build:
+[31m[vite:json] [plugin vite:json] sr
+c/data/maharashtra_health_budget.json 
+(1169:31): Failed to parse JSON file, 
+invalid JSON syntax found at position 
+37153[31m
+file: [36mC:/coding/COHERENCE-26_CRAZ
+ZY/client/src/data/maharashtra_health_
+budget.json:1169:31[31m
+[33m
+1167:     
+"nhm_actual_expenditure_inr_cr": 
+18.00,
+1168:     "utilization_rate_pct": 
+83.3,
+1169:     "unspent_balance_inr_cr": 3.
+                                     ^
+[31m
+    at getRollupError (file:///C:/codi
+ng/COHERENCE-26_CRAZZY/client/node_mod
+ules/rollup/dist/es/shared/parseAst.js
+:402:41)
+    at error (file:///C:/coding/COHERE
+NCE-26_CRAZZY/client/node_modules/roll
+up/dist/es/shared/parseAst.js:398:42)
+    at Object.error (file:///C:/coding
+/COHERENCE-26_CRAZZY/client/node_modul
+es/rollup/dist/es/shared/node-entry.js
+:22249:20)
+    at Object.error (file:///C:/coding
+/COHERENCE-26_CRAZZY/client/node_modul
+es/rollup/dist/es/shared/node-entry.js
+:21298:42)
+    at Object.handler (file:///C:/codi
+ng/COHERENCE-26_CRAZZY/client/node_mod
+ules/vite/dist/node/chunks/dep-D4NMHUT
+W.js:12175:16)
+    at Object.handler (file:///C:/codi
+ng/COHERENCE-26_CRAZZY/client/node_mod
+ules/vite/dist/node/chunks/dep-D4NMHUT
+W.js:46537:15)
+    at file:///C:/coding/COHERENCE-26_
+CRAZZY/client/node_modules/rollup/dist
+/es/shared/node-entry.js:22571:40[39m

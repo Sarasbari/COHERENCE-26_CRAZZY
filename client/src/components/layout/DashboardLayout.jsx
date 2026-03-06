@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import ChatBot from '../chat/ChatBot';
 
 export default function DashboardLayout() {
     return (
@@ -12,6 +13,9 @@ export default function DashboardLayout() {
                     <Outlet />
                 </main>
             </div>
+
+            {/* Global Chatbot UI */}
+            <ChatBot />
         </div>
     );
 }
