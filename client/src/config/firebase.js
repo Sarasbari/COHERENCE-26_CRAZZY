@@ -14,8 +14,25 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-export const db = getFirestore(app);
+let app = null;
+let auth = null;
+let googleProvider = null;
+let db = null;
+
+// Only initialize if API key is actually configured
+if (firebaseConfig.apiKey) {
+    try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        googleProvider = new GoogleAuthProvider();
+        db = getFirestore(app);
+    } catch (error) {
+        console.warn('Firebase initialization failed:', error.message);
+    }
+} else {
+    console.warn('Firebase: No API key found. Set VITE_FIREBASE_API_KEY in .env to enable Firebase.');
+}
+
+export { auth, googleProvider, db };
 export default app;
+

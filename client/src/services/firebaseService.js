@@ -16,6 +16,10 @@ const COLLECTIONS = {
 // GENERIC FIRESTORE FETCH
 // ========================
 async function fetchCollection(collectionName) {
+    if (!db) {
+        console.warn(`[Firebase] Skipping "${collectionName}" — db not initialized (missing env vars)`);
+        return [];
+    }
     try {
         const snap = await getDocs(collection(db, collectionName));
         const docs = [];

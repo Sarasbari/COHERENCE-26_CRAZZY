@@ -2,13 +2,14 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, TrendingUp, AlertTriangle, BarChart2,
-    Settings, ArrowLeftRight
+    Settings, ArrowLeftRight, Droplets
 } from 'lucide-react';
 import { APP_NAME } from '../../config/constants';
 
 const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
     { path: '/dashboard/analytics', icon: TrendingUp, label: 'Fund Flows' },
+    { path: '/dashboard/budget-flow', icon: Droplets, label: 'Budget Flow' },
     { path: '/dashboard/anomalies', icon: AlertTriangle, label: 'Leakage Detection' },
     { path: '/dashboard/predict', icon: BarChart2, label: 'Department Analysis' },
     { path: '/dashboard/settings', icon: Settings, label: 'Settings' },

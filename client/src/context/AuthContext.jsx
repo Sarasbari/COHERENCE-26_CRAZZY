@@ -11,6 +11,10 @@ export function AuthProvider({ children }) {
     const [role, setRole] = useState(ROLES.CITIZEN);
 
     useEffect(() => {
+        if (!auth) {
+            setLoading(false);
+            return;
+        }
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
             if (firebaseUser) {
                 setUser({
