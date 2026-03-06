@@ -19,6 +19,8 @@ server/.env
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+serviceAccountKey.json
+**/serviceAccountKey.json
 
 # IDE
 .vscode/
