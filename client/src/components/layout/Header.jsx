@@ -1,6 +1,17 @@
 import { Bell, ChevronDown, Download, User } from 'lucide-react';
 
 export default function Header() {
+    const handleExport = () => {
+        const csvContent = "data:text/csv;charset=utf-8,District,Allocated (Cr),Utilization (%),Flagged Amt (Cr),Risk Level\nPune,45.2,78,0.12,Low\nNagpur,32.15,42,0.84,High\nMumbai City,85.0,65,0.32,Medium\nAurangabad,39.4,39,0.039,High";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "district_performance.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <header className="h-16 bg-[#1E3A8A] border-b border-[#1E3A8A] flex items-center justify-between px-6 sticky top-0 z-30">
             {/* Left: Title + Live Sync */}
@@ -27,7 +38,10 @@ export default function Header() {
                 </button>
 
                 {/* Export */}
-                <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                <button 
+                    onClick={handleExport}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                >
                     <Download size={14} />
                     Export Data
                 </button>

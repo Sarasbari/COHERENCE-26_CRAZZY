@@ -33,8 +33,9 @@ export default function Landing() {
             {/* Nav */}
             <nav className="flex items-center justify-between px-8 py-5 border-b border-[#E2E8F0] bg-white">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] flex items-center justify-center font-bold text-white text-lg">
-                        B
+                    <div className="relative group cursor-pointer">
+                        <div className="absolute inset-0 bg-[#3B82F6]/20 rounded-xl blur-md transition-all duration-500 group-hover:bg-[#3B82F6]/40 group-hover:scale-110"></div>
+                        <img src="/logo.png" alt="Logo" className="w-11 h-11 relative z-10 shadow-sm rounded-xl object-contain transition-transform duration-500 group-hover:scale-105" />
                     </div>
                     <span className="font-bold text-[#0F172A] text-xl">{APP_NAME}</span>
                 </div>
@@ -168,7 +169,7 @@ export default function Landing() {
 
             {/* Footer */}
             <footer className="border-t border-[#E2E8F0] px-8 py-8 text-center text-[#94A3B8] text-sm">
-                <p>© 2026 {APP_NAME} — National Budget Flow Intelligence Platform | Built for COHERENCE Hackathon</p>
+                <p>© 2026 {APP_NAME} — National ARTHRAKSHAK Intelligence Platform | Built for COHERENCE Hackathon</p>
             </footer>
         </div>
     );

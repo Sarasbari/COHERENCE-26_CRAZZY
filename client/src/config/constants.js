@@ -79,6 +79,6 @@ export const GROQ_CONFIG = {
 // ========================
 // APP CONFIG
 // ========================
-export const APP_NAME = 'BudgetFlow AI';
+export const APP_NAME = 'ARTHRAKSHAK AI';
 export const APP_TAGLINE = 'National Budget Intelligence & Leakage Detection';
 export const STATE_NAME = 'Maharashtra';
