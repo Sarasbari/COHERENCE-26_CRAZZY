@@ -1,71 +1,46 @@
-import { useFilterContext } from '../../context/FilterContext';
-import { FISCAL_YEARS, QUARTERS, DIVISIONS, DEPARTMENTS } from '../../config/constants';
-import { Bell, Filter } from 'lucide-react';
-import { APP_TAGLINE } from '../../config/constants';
+import { Bell, ChevronDown, Download, User } from 'lucide-react';
 
 export default function Header() {
-    const { filters, updateFilter, analysis } = useFilterContext();
-
     return (
-        <header className="h-16 bg-surface-900/60 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-6 sticky top-0 z-30">
-            {/* Title */}
-            <div>
-                <p className="text-xs text-white/40 uppercase tracking-widest">{APP_TAGLINE}</p>
+        <header className="h-16 bg-[#0f0f13] border-b border-[#2a2a3a] flex items-center justify-between px-6 sticky top-0 z-30">
+            {/* Left: Title + Live Sync */}
+            <div className="flex items-center gap-4">
+                <h1 className="text-xl font-bold text-white">Dashboard Overview</h1>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#22c55e]/30 bg-[#22c55e]/10">
+                    <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse" />
+                    <span className="text-xs text-[#22c55e] font-medium">Live Sync</span>
+                </div>
             </div>
 
-            {/* Filters */}
+            {/* Right: Filters + Actions */}
             <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 text-white/40 mr-2">
-                    <Filter size={14} />
-                    <span className="text-xs">Filters:</span>
-                </div>
+                {/* All Districts dropdown */}
+                <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1e1e28] border border-[#2a2a3a] text-sm text-white hover:border-[#3a3a4a] transition-colors">
+                    All Districts
+                    <ChevronDown size={14} className="text-[#6b7280]" />
+                </button>
 
-                {/* Fiscal Year */}
-                <select
-                    value={filters.fiscalYear || ''}
-                    onChange={(e) => updateFilter('fiscalYear', e.target.value || null)}
-                    className="bg-surface-800 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-gold-500/50"
-                >
-                    <option value="">All Years</option>
-                    {FISCAL_YEARS.map((fy) => (
-                        <option key={fy} value={fy}>FY {fy}</option>
-                    ))}
-                </select>
+                {/* FY dropdown */}
+                <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1e1e28] border border-[#2a2a3a] text-sm text-white hover:border-[#3a3a4a] transition-colors">
+                    FY 2023-24
+                    <ChevronDown size={14} className="text-[#6b7280]" />
+                </button>
 
-                {/* Quarter */}
-                <select
-                    value={filters.quarter || ''}
-                    onChange={(e) => updateFilter('quarter', e.target.value || null)}
-                    className="bg-surface-800 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-gold-500/50"
-                >
-                    <option value="">All Quarters</option>
-                    {QUARTERS.map((q) => (
-                        <option key={q} value={q}>{q}</option>
-                    ))}
-                </select>
+                {/* Export */}
+                <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#2a2a3a] text-sm text-[#6b7280] hover:text-white hover:border-[#3a3a4a] transition-colors">
+                    <Download size={14} />
+                    Export Data
+                </button>
 
-                {/* Division */}
-                <select
-                    value={filters.division || ''}
-                    onChange={(e) => updateFilter('division', e.target.value || null)}
-                    className="bg-surface-800 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-gold-500/50"
-                >
-                    <option value="">All Divisions</option>
-                    {Object.entries(DIVISIONS).map(([id, div]) => (
-                        <option key={id} value={id}>{div.name}</option>
-                    ))}
-                </select>
+                {/* Bell */}
+                <button className="relative p-2 rounded-lg hover:bg-white/5 transition-colors">
+                    <Bell size={18} className="text-[#6b7280]" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#f97316] rounded-full" />
+                </button>
 
-                {/* Anomaly alert bell */}
-                <div className="relative ml-2">
-                    <button className="p-2 rounded-lg hover:bg-white/5 transition-colors relative">
-                        <Bell size={20} className="text-white/60" />
-                        {analysis && analysis.criticalCount > 0 && (
-                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-severity-critical rounded-full flex items-center justify-center text-[10px] font-bold text-white animate-pulse">
-                                {analysis.criticalCount > 9 ? '9+' : analysis.criticalCount}
-                            </span>
-                        )}
-                    </button>
+                {/* Avatar */}
+                <div className="w-8 h-8 rounded-full bg-[#2a2a3a] flex items-center justify-center">
+                    <User size={16} className="text-[#6b7280]" />
                 </div>
             </div>
         </header>

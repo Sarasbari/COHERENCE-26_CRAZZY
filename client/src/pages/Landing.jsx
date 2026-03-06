@@ -24,12 +24,8 @@ export default function Landing() {
     const navigate = useNavigate();
     const { login, user } = useAuth();
 
-    const handleGetStarted = async () => {
-        if (user) {
-            navigate('/dashboard');
-        } else {
-            await login();
-        }
+    const handleGetStarted = () => {
+        navigate('/dashboard');
     };
 
     return (
