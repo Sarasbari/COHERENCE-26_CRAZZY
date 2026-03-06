@@ -34,7 +34,7 @@ import {
     ArrowDownRight,
 } from 'lucide-react';
 import { db } from '../config/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { fetchAllData } from '../services/firebaseService';
 
 /* ═══════════════════════════════════════════════════════════════
    §1  FIREBASE DATA HOOK
@@ -118,75 +118,60 @@ function useBudgetData() {
 
         async function fetchData() {
             try {
-                const [agriSnap, finSnap] = await Promise.all([
-                    getDocs(collection(db, 'maharashtra_agriculture')),
-                    getDocs(collection(db, 'maharashtra_agri_finance')),
-                ]);
+                // Fetch all data across all collections
+                const { records } = await fetchAllData();
 
-                const agriDocs = [];
-                agriSnap.forEach((d) => agriDocs.push(d.data()));
-                const finDocs = [];
-                finSnap.forEach((d) => finDocs.push(d.data()));
-
-                // Filter to latest year (2025)
-                const latestYear = 2025;
-                const agriLatest = agriDocs.filter((d) => d.year === latestYear);
-                const finLatest = finDocs.filter((d) => d.year === latestYear);
-
-                // Aggregate agriculture by division
+                // Aggregate by division
                 const divMap = {};
-                agriLatest.forEach((d) => {
-                    const div = d.division || 'Unknown';
-                    if (!divMap[div]) {
-                        divMap[div] = {
+                records.forEach((r) => {
+                    const divName = r.divisionName.replace(' Division', '');
+                    if (!divMap[divName]) {
+                        divMap[divName] = {
                             totalAllocated: 0,
                             totalSpent: 0,
                             districts: new Set(),
+                            schemes: {},
                             farmerCount: 0,
                             topCrop: '',
-                            maxArea: 0,
                         };
                     }
-                    divMap[div].totalAllocated += d.budget_allocated_lakhs || 0;
-                    divMap[div].totalSpent += d.budget_utilized_lakhs || 0;
-                    divMap[div].districts.add(d.district);
-                    divMap[div].farmerCount += d.farmer_count || 0;
-                    if ((d.area_sown_hectares || 0) > divMap[div].maxArea) {
-                        divMap[div].maxArea = d.area_sown_hectares;
-                        divMap[div].topCrop = d.crop;
+
+                    divMap[divName].totalAllocated += r.allocated;
+                    divMap[divName].totalSpent += r.spent;
+                    if (r.district) divMap[divName].districts.add(r.district);
+
+                    // Extract raw specific fields mapping to different schemes
+                    if (r._raw) {
+                        if (r._raw.farmer_count) divMap[divName].farmerCount += r._raw.farmer_count;
+                        if (r._raw.crop) divMap[divName].topCrop = r._raw.crop;
+
+                        const schemeName = r._raw.scheme_name || (r._source === 'maharashtra_health_budget' ? 'NHM Govt Health' : 'General State Fund');
+                        if (!divMap[divName].schemes[schemeName]) {
+                            divMap[divName].schemes[schemeName] = { sanctioned: 0, spent: 0 };
+                        }
+                        divMap[divName].schemes[schemeName].sanctioned += r.allocated;
+                        divMap[divName].schemes[schemeName].spent += r.spent;
                     }
                 });
 
-                // Aggregate schemes by division
-                const schemeMap = {};
-                finLatest.forEach((d) => {
-                    const div = d.division || 'Unknown';
-                    if (!schemeMap[div]) schemeMap[div] = {};
-                    const sn = d.scheme_name || 'Other';
-                    if (!schemeMap[div][sn]) {
-                        schemeMap[div][sn] = { sanctioned: 0, spent: 0 };
-                    }
-                    schemeMap[div][sn].sanctioned += d.budget_sanctioned_lakhs || 0;
-                    schemeMap[div][sn].spent += d.amount_spent_lakhs || 0;
-                });
-
-                const colors = { Amravati: '#16A34A', Nagpur: '#F59E0B', Aurangabad: '#3B82F6' };
-                const colorLights = { Amravati: '#DCFCE7', Nagpur: '#FEF3C7', Aurangabad: '#DBEAFE' };
-                const icons = { Amravati: Leaf, Nagpur: Sprout, Aurangabad: Wheat };
+                const colors = { Amravati: '#16A34A', Nagpur: '#F59E0B', Aurangabad: '#3B82F6', Konkan: '#8B5CF6', Pune: '#EC4899', Nashik: '#06B6D4' };
+                const colorLights = { Amravati: '#DCFCE7', Nagpur: '#FEF3C7', Aurangabad: '#DBEAFE', Konkan: '#F3E8FF', Pune: '#FCE7F3', Nashik: '#CFFAFE' };
+                const icons = { Amravati: Leaf, Nagpur: Sprout, Aurangabad: Wheat, Konkan: Building2, Pune: ShieldCheck, Nashik: Landmark };
 
                 const result = Object.entries(divMap).map(([name, data]) => {
                     const util = data.totalAllocated > 0
                         ? ((data.totalSpent / data.totalAllocated) * 100)
                         : 0;
+
                     const leak = Math.max(0, 100 - util - (Math.random() * 5 + 92 - (100 - util)));
-                    const schemes = schemeMap[name]
-                        ? Object.entries(schemeMap[name]).map(([sn, sv]) => ({
-                            name: sn,
-                            sanctioned: sv.sanctioned,
-                            spent: sv.spent,
-                            utilization: sv.sanctioned > 0 ? ((sv.spent / sv.sanctioned) * 100) : 0,
-                        }))
-                        : [];
+
+                    const mappedSchemes = Object.entries(data.schemes).map(([sn, sv]) => ({
+                        name: sn,
+                        sanctioned: sv.sanctioned,
+                        spent: sv.spent,
+                        utilization: sv.sanctioned > 0 ? ((sv.spent / sv.sanctioned) * 100) : 0,
+                    }));
+
                     return {
                         id: name.toLowerCase(),
                         name: `${name} Division`,
@@ -197,10 +182,10 @@ function useBudgetData() {
                         totalSpent: data.totalSpent,
                         utilization: parseFloat(util.toFixed(1)),
                         leakage: parseFloat(Math.max(0, 100 - util).toFixed(1)),
-                        topCrop: data.topCrop,
+                        topCrop: data.topCrop || 'Mixed',
                         districts: Array.from(data.districts),
                         farmerCount: data.farmerCount,
-                        schemes: schemes.sort((a, b) => b.sanctioned - a.sanctioned).slice(0, 5),
+                        schemes: mappedSchemes.sort((a, b) => b.sanctioned - a.sanctioned).slice(0, 5),
                     };
                 });
 

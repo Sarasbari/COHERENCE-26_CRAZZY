@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, TrendingUp, AlertTriangle, BarChart2,
-    Settings, ArrowLeftRight, Droplets
+    ArrowLeftRight, Droplets
 } from 'lucide-react';
 import { APP_NAME } from '../../config/constants';
 
@@ -12,7 +12,6 @@ const navItems = [
     { path: '/dashboard/budget-flow', icon: Droplets, label: 'Budget Flow' },
     { path: '/dashboard/anomalies', icon: AlertTriangle, label: 'Leakage Detection' },
     { path: '/dashboard/predict', icon: BarChart2, label: 'Department Analysis' },
-    { path: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 
 export default function Sidebar() {
@@ -23,7 +22,7 @@ export default function Sidebar() {
             {/* Logo */}
             <div className="px-5 py-6 flex items-center gap-3 border-b border-white/10">
                 <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center font-bold text-[#1E3A8A] text-sm flex-shrink-0">
-                    B
+                    A
                 </div>
                 <div>
                     <h1 className="font-bold text-white text-sm leading-tight">{APP_NAME}</h1>
