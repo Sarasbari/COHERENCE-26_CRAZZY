@@ -68,17 +68,13 @@ export default function Analytics() {
                 <p className="section-subtitle mb-4">Compare budget performance across 8 departments</p>
                 <ResponsiveContainer width="100%" height={350}>
                     <BarChart data={deptData} margin={{ top: 10, right: 30, left: 10, bottom: 40 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                        <XAxis dataKey="name" tick={{ fill: '#64748B', fontSize: 11 }} angle={-30} textAnchor="end" height={60} />
-                        <YAxis tick={{ fill: '#64748B', fontSize: 11 }} tickFormatter={(v) => formatCurrency(v)} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend wrapperStyle={{ color: '#64748B', fontSize: 12 }} />
-                        <Bar dataKey="allocated" name="Allocated" fill="#1E3A8A" radius={[4, 4, 0, 0]} opacity={0.7} />
-                        <Bar dataKey="spent" name="Spent" radius={[4, 4, 0, 0]}>
-                            {deptData.map((entry, i) => (
-                                <Cell key={i} fill={entry.color} />
-                            ))}
-                        </Bar>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                        <XAxis dataKey="name" tick={{ fill: '#64748B', fontSize: 11 }} angle={-30} textAnchor="end" height={60} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: '#64748B', fontSize: 11 }} tickFormatter={(v) => formatCurrency(v)} axisLine={false} tickLine={false} />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                        <Legend wrapperStyle={{ color: '#64748B', fontSize: 12, paddingTop: '10px' }} iconType="circle" />
+                        <Bar dataKey="allocated" name="Allocated" fill="#1E3A8A" radius={[4, 4, 0, 0]} barSize={40} />
+                        <Bar dataKey="spent" name="Spent" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={40} />
                     </BarChart>
                 </ResponsiveContainer>
             </motion.div>
