@@ -29,14 +29,14 @@ export default function Landing() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
+        <div className="min-h-screen bg-[#F8FAFC] overflow-hidden">
             {/* Nav */}
-            <nav className="flex items-center justify-between px-8 py-5 border-b border-white/5">
+            <nav className="flex items-center justify-between px-8 py-5 border-b border-[#E2E8F0] bg-white">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center font-bold text-navy-950 text-lg">
+                    <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] flex items-center justify-center font-bold text-white text-lg">
                         B
                     </div>
-                    <span className="font-bold text-white text-xl">{APP_NAME}</span>
+                    <span className="font-bold text-[#0F172A] text-xl">{APP_NAME}</span>
                 </div>
                 <button onClick={handleGetStarted} className="btn-primary flex items-center gap-2">
                     {user ? 'Go to Dashboard' : 'Sign In with Google'}
@@ -47,9 +47,9 @@ export default function Landing() {
             {/* Hero — Two-column: Text Left + Globe Right */}
             <section className="relative px-8 py-16 md:py-24">
                 {/* Ambient glow — left side */}
-                <div className="absolute top-0 left-0 w-[600px] h-[500px] bg-gradient-radial from-gold-500/8 via-transparent to-transparent blur-3xl pointer-events-none" />
+                <div className="absolute top-0 left-0 w-[600px] h-[500px] bg-gradient-radial from-[#3B82F6]/5 via-transparent to-transparent blur-3xl pointer-events-none" />
                 {/* Ambient glow — right side for globe */}
-                <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-radial from-gold-500/5 via-transparent to-transparent blur-3xl pointer-events-none" />
+                <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-radial from-[#1E3A8A]/5 via-transparent to-transparent blur-3xl pointer-events-none" />
 
                 <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
                     {/* Left — Content */}
@@ -60,22 +60,22 @@ export default function Landing() {
                         className="flex-1 max-w-xl lg:max-w-none"
                     >
                         {/* Badge */}
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-sm mb-8">
-                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1E3A8A]/10 border border-[#1E3A8A]/20 text-[#1E3A8A] text-sm mb-8">
+                            <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
                             Maharashtra State Budget Intelligence
                         </div>
 
                         {/* Headline */}
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#0F172A] leading-tight">
                             Track. Detect.{' '}
                             <br className="hidden sm:block" />
-                            <span className="bg-gradient-to-r from-amber-400 via-gold-400 to-amber-500 bg-clip-text text-transparent">
+                            <span className="bg-gradient-to-r from-[#1E3A8A] via-[#3B82F6] to-[#60A5FA] bg-clip-text text-transparent">
                                 Optimize.
                             </span>
                         </h1>
 
                         {/* Subtext */}
-                        <p className="mt-6 text-base md:text-lg text-white/50 max-w-lg leading-relaxed">
+                        <p className="mt-6 text-base md:text-lg text-[#64748B] max-w-lg leading-relaxed">
                             AI-powered platform tracking public fund flows across
                             Amravati, Nagpur &amp; Aurangabad divisions — detecting leakages, forecasting
                             risks, and enabling data-driven governance.
@@ -86,9 +86,9 @@ export default function Landing() {
                             {stats.map((stat, i) => (
                                 <div key={i} className="flex items-center gap-2">
                                     <span className="text-xl font-bold gradient-text">{stat.value}</span>
-                                    <span className="text-white/40">{stat.label}</span>
+                                    <span className="text-[#94A3B8]">{stat.label}</span>
                                     {i < stats.length - 1 && (
-                                        <span className="hidden sm:block w-px h-5 bg-white/10 ml-4" />
+                                        <span className="hidden sm:block w-px h-5 bg-[#E2E8F0] ml-4" />
                                     )}
                                 </div>
                             ))}
@@ -116,9 +116,9 @@ export default function Landing() {
                         <InteractiveGlobe
                             size={460}
                             autoRotateSpeed={0.002}
-                            dotColor="rgba(251, 146, 60, ALPHA)"
-                            arcColor="rgba(251, 146, 60, 0.4)"
-                            markerColor="rgba(251, 191, 36, 1)"
+                            dotColor="rgba(30, 58, 138, ALPHA)"
+                            arcColor="rgba(59, 130, 246, 0.4)"
+                            markerColor="rgba(59, 130, 246, 1)"
                         />
                     </motion.div>
                 </div>
@@ -134,7 +134,7 @@ export default function Landing() {
                 {stats.map((stat, i) => (
                     <div key={i} className="text-center">
                         <p className="text-3xl font-bold gradient-text">{stat.value}</p>
-                        <p className="text-sm text-white/40 mt-1">{stat.label}</p>
+                        <p className="text-sm text-[#94A3B8] mt-1">{stat.label}</p>
                     </div>
                 ))}
             </motion.div>
@@ -142,8 +142,8 @@ export default function Landing() {
             {/* Features */}
             <section id="features" className="px-8 py-20">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-bold text-white">Intelligent Budget Monitoring</h2>
-                    <p className="text-white/40 mt-3">Powered by multi-layer anomaly detection and AI analysis</p>
+                    <h2 className="text-3xl font-bold text-[#0F172A]">Intelligent Budget Monitoring</h2>
+                    <p className="text-[#64748B] mt-3">Powered by multi-layer anomaly detection and AI analysis</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -156,18 +156,18 @@ export default function Landing() {
                             transition={{ delay: i * 0.1 }}
                             className="glass-card-hover p-6"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-gold-500/10 flex items-center justify-center mb-4">
-                                <feature.icon size={24} className="text-gold-400" />
+                            <div className="w-12 h-12 rounded-xl bg-[#1E3A8A]/10 flex items-center justify-center mb-4">
+                                <feature.icon size={24} className="text-[#1E3A8A]" />
                             </div>
-                            <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                            <p className="text-sm text-white/50 leading-relaxed">{feature.desc}</p>
+                            <h3 className="text-lg font-semibold text-[#0F172A] mb-2">{feature.title}</h3>
+                            <p className="text-sm text-[#64748B] leading-relaxed">{feature.desc}</p>
                         </motion.div>
                     ))}
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="border-t border-white/5 px-8 py-8 text-center text-white/30 text-sm">
+            <footer className="border-t border-[#E2E8F0] px-8 py-8 text-center text-[#94A3B8] text-sm">
                 <p>© 2026 {APP_NAME} — National Budget Flow Intelligence Platform | Built for COHERENCE Hackathon</p>
             </footer>
         </div>

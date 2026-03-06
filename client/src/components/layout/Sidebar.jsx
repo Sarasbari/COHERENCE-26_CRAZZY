@@ -18,15 +18,15 @@ export default function Sidebar() {
     const location = useLocation();
 
     return (
-        <aside className="w-60 h-screen bg-[#15151d] border-r border-[#2a2a3a] flex flex-col fixed left-0 top-0 z-40">
+        <aside className="w-60 h-screen bg-[#1E3A8A] flex flex-col fixed left-0 top-0 z-40">
             {/* Logo */}
-            <div className="px-5 py-6 flex items-center gap-3 border-b border-[#2a2a3a]">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#f97316] to-[#ea580c] flex items-center justify-center font-bold text-white text-sm flex-shrink-0">
+            <div className="px-5 py-6 flex items-center gap-3 border-b border-white/10">
+                <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center font-bold text-[#1E3A8A] text-sm flex-shrink-0">
                     B
                 </div>
                 <div>
                     <h1 className="font-bold text-white text-sm leading-tight">{APP_NAME}</h1>
-                    <p className="text-[11px] text-[#6b7280] leading-tight">Maharashtra State</p>
+                    <p className="text-[11px] text-white/60 leading-tight">Maharashtra State</p>
                 </div>
             </div>
 
@@ -42,8 +42,8 @@ export default function Sidebar() {
                             to={item.path}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative
                                 ${isActive
-                                    ? 'bg-[#f97316]/10 text-[#f97316] border-l-2 border-[#f97316] ml-0'
-                                    : 'text-[#6b7280] hover:text-white hover:bg-white/5 border-l-2 border-transparent'
+                                    ? 'bg-white/15 text-white border-l-2 border-white ml-0'
+                                    : 'text-white/60 hover:text-white hover:bg-white/10 border-l-2 border-transparent'
                                 }`}
                         >
                             <item.icon size={18} className="flex-shrink-0" />
@@ -54,8 +54,8 @@ export default function Sidebar() {
             </nav>
 
             {/* Bottom: Switch Role */}
-            <div className="px-3 py-4 border-t border-[#2a2a3a]">
-                <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#6b7280] hover:text-white hover:bg-white/5 transition-colors w-full">
+            <div className="px-3 py-4 border-t border-white/10">
+                <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors w-full">
                     <ArrowLeftRight size={18} />
                     <span>Switch to Officer Role</span>
                 </button>

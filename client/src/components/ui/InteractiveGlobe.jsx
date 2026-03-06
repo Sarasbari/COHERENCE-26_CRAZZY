@@ -57,9 +57,9 @@ function project(x, y, z, cx, cy, fov) {
 export default function InteractiveGlobe({
     className,
     size = 600,
-    dotColor = 'rgba(251, 146, 60, ALPHA)',
-    arcColor = 'rgba(251, 146, 60, 0.4)',
-    markerColor = 'rgba(251, 191, 36, 1)',
+    dotColor = 'rgba(30, 58, 138, ALPHA)',
+    arcColor = 'rgba(59, 130, 246, 0.4)',
+    markerColor = 'rgba(59, 130, 246, 1)',
     autoRotateSpeed = 0.002,
     connections = DEFAULT_CONNECTIONS,
     markers = DEFAULT_MARKERS,
@@ -123,17 +123,17 @@ export default function InteractiveGlobe({
 
         ctx.clearRect(0, 0, w, h);
 
-        // Outer glow (amber tinted)
+        // Outer glow (blue tinted)
         const glowGrad = ctx.createRadialGradient(cx, cy, radius * 0.8, cx, cy, radius * 1.5);
-        glowGrad.addColorStop(0, 'rgba(251, 146, 60, 0.03)');
-        glowGrad.addColorStop(1, 'rgba(251, 146, 60, 0)');
+        glowGrad.addColorStop(0, 'rgba(59, 130, 246, 0.04)');
+        glowGrad.addColorStop(1, 'rgba(59, 130, 246, 0)');
         ctx.fillStyle = glowGrad;
         ctx.fillRect(0, 0, w, h);
 
         // Globe outline
         ctx.beginPath();
         ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(251, 146, 60, 0.06)';
+        ctx.strokeStyle = 'rgba(30, 58, 138, 0.1)';
         ctx.lineWidth = 1;
         ctx.stroke();
 
@@ -238,7 +238,7 @@ export default function InteractiveGlobe({
             // Label
             if (marker.label) {
                 ctx.font = '10px Inter, system-ui, sans-serif';
-                ctx.fillStyle = markerColor.replace('1)', '0.6)');
+                ctx.fillStyle = markerColor.replace('1)', '0.7)');
                 ctx.fillText(marker.label, sx + 8, sy + 3);
             }
         }

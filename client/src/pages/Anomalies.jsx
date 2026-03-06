@@ -35,7 +35,7 @@ export default function Anomalies() {
 
     if (loading) {
         return <div className="flex items-center justify-center h-96">
-            <div className="w-8 h-8 border-2 border-gold-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[#1E3A8A] border-t-transparent rounded-full animate-spin" />
         </div>;
     }
 
@@ -49,8 +49,8 @@ export default function Anomalies() {
     return (
         <div className="space-y-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h2 className="text-2xl font-bold text-white mb-1">Anomaly Detection</h2>
-                <p className="text-white/40 text-sm">Flagged issues from rule-based and statistical analysis</p>
+                <h2 className="text-2xl font-bold text-[#0F172A] mb-1">Anomaly Detection</h2>
+                <p className="text-[#64748B] text-sm">Flagged issues from rule-based and statistical analysis</p>
             </motion.div>
 
             {/* Severity Summary */}
@@ -61,22 +61,22 @@ export default function Anomalies() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         onClick={() => setSeverityFilter(severityFilter === sev ? 'all' : sev)}
-                        className={`glass-card p-4 text-center cursor-pointer transition-all ${severityFilter === sev ? 'ring-2 ring-gold-500/50' : ''
+                        className={`glass-card p-4 text-center cursor-pointer transition-all ${severityFilter === sev ? 'ring-2 ring-[#3B82F6]/50' : ''
                             }`}
                     >
                         <p className={`text-2xl font-bold text-severity-${sev}`}>{severityCounts[sev]}</p>
-                        <p className="text-xs text-white/40 capitalize mt-1">{sev}</p>
+                        <p className="text-xs text-[#64748B] capitalize mt-1">{sev}</p>
                     </motion.button>
                 ))}
             </div>
 
             {/* Filter bar */}
             <div className="flex items-center gap-3">
-                <Filter size={16} className="text-white/40" />
+                <Filter size={16} className="text-[#64748B]" />
                 <select
                     value={typeFilter}
                     onChange={(e) => setTypeFilter(e.target.value)}
-                    className="bg-surface-800 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-gold-500/50"
+                    className="bg-white border border-[#E2E8F0] rounded-lg px-3 py-1.5 text-sm text-[#0F172A] focus:outline-none focus:border-[#3B82F6]"
                 >
                     <option value="all">All Types</option>
                     <option value="underspending">Underspending</option>
@@ -86,7 +86,7 @@ export default function Anomalies() {
                     <option value="statistical_low">Statistical Outlier (Low)</option>
                     <option value="statistical_high">Statistical Outlier (High)</option>
                 </select>
-                <span className="text-xs text-white/30">{anomalies.length} results</span>
+                <span className="text-xs text-[#94A3B8]">{anomalies.length} results</span>
             </div>
 
             {/* Anomaly List + Detail Panel */}
@@ -103,8 +103,8 @@ export default function Anomalies() {
                     ))}
                     {anomalies.length === 0 && (
                         <div className="glass-card p-12 text-center">
-                            <AlertTriangle size={40} className="mx-auto text-white/20 mb-3" />
-                            <p className="text-white/40">No anomalies match current filters</p>
+                            <AlertTriangle size={40} className="mx-auto text-[#CBD5E1] mb-3" />
+                            <p className="text-[#64748B]">No anomalies match current filters</p>
                         </div>
                     )}
                 </div>
@@ -123,36 +123,36 @@ export default function Anomalies() {
                                 <div className="flex items-start justify-between mb-4">
                                     <div>
                                         <span className={`badge-${selectedAnomaly.severity} mb-2`}>{selectedAnomaly.severity}</span>
-                                        <h4 className="text-lg font-semibold text-white mt-2">{selectedAnomaly.departmentName}</h4>
-                                        <p className="text-sm text-white/40">{selectedAnomaly.district} • FY {selectedAnomaly.fiscalYear} {selectedAnomaly.quarter}</p>
+                                        <h4 className="text-lg font-semibold text-[#0F172A] mt-2">{selectedAnomaly.departmentName}</h4>
+                                        <p className="text-sm text-[#64748B]">{selectedAnomaly.district} • FY {selectedAnomaly.fiscalYear} {selectedAnomaly.quarter}</p>
                                     </div>
-                                    <button onClick={() => setSelectedAnomaly(null)} className="p-1 hover:bg-white/10 rounded-lg">
-                                        <X size={18} className="text-white/40" />
+                                    <button onClick={() => setSelectedAnomaly(null)} className="p-1 hover:bg-[#F1F5F9] rounded-lg">
+                                        <X size={18} className="text-[#94A3B8]" />
                                     </button>
                                 </div>
 
-                                <p className="text-sm text-white/70 mb-4">{selectedAnomaly.description}</p>
+                                <p className="text-sm text-[#334155] mb-4">{selectedAnomaly.description}</p>
 
                                 {/* AI Explanation */}
-                                <div className="mt-4 pt-4 border-t border-white/10">
+                                <div className="mt-4 pt-4 border-t border-[#E2E8F0]">
                                     <div className="flex items-center gap-2 mb-3">
-                                        <Brain size={16} className="text-gold-400" />
-                                        <span className="text-sm font-medium text-gold-400">AI Analysis</span>
+                                        <Brain size={16} className="text-[#1E3A8A]" />
+                                        <span className="text-sm font-medium text-[#1E3A8A]">AI Analysis</span>
                                     </div>
                                     {explaining ? (
-                                        <div className="flex items-center gap-2 text-white/40 text-sm">
+                                        <div className="flex items-center gap-2 text-[#64748B] text-sm">
                                             <Loader2 size={16} className="animate-spin" />
                                             Analyzing anomaly...
                                         </div>
                                     ) : (
-                                        <p className="text-sm text-white/60 leading-relaxed whitespace-pre-wrap">{explanation || 'Click an anomaly to get AI-powered analysis'}</p>
+                                        <p className="text-sm text-[#475569] leading-relaxed whitespace-pre-wrap">{explanation || 'Click an anomaly to get AI-powered analysis'}</p>
                                     )}
                                 </div>
                             </motion.div>
                         ) : (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card p-8 text-center sticky top-24">
-                                <Brain size={40} className="mx-auto text-white/20 mb-3" />
-                                <p className="text-white/40 text-sm">Select an anomaly to view AI-powered analysis</p>
+                                <Brain size={40} className="mx-auto text-[#CBD5E1] mb-3" />
+                                <p className="text-[#64748B] text-sm">Select an anomaly to view AI-powered analysis</p>
                             </motion.div>
                         )}
                     </AnimatePresence>

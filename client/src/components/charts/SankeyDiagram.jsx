@@ -30,7 +30,7 @@ export default function SankeyDiagram({ data }) {
 
         // State node
         nodeMap['maharashtra'] = idx;
-        nodes.push({ name: 'Maharashtra State', id: 'maharashtra', color: '#f59e0b' });
+        nodes.push({ name: 'Maharashtra State', id: 'maharashtra', color: '#1E3A8A' });
         idx++;
 
         // Division nodes
@@ -100,7 +100,7 @@ export default function SankeyDiagram({ data }) {
     if (!sankeyData) {
         return (
             <div className="glass-card p-8 flex items-center justify-center h-[500px]">
-                <p className="text-white/40">No data available for Sankey diagram</p>
+                <p className="text-[#64748B]">No data available for Sankey diagram</p>
             </div>
         );
     }
@@ -112,10 +112,10 @@ export default function SankeyDiagram({ data }) {
                     <h3 className="section-title">Fund Flow Visualization</h3>
                     <p className="section-subtitle">State → Divisions → Departments allocation flow</p>
                 </div>
-                <div className="flex gap-4 text-xs text-white/50">
-                    <span className="flex items-center gap-1"><span className="w-3 h-1 bg-green-500 rounded" /> Healthy Flow</span>
-                    <span className="flex items-center gap-1"><span className="w-3 h-1 bg-yellow-500 rounded" /> Warning</span>
-                    <span className="flex items-center gap-1"><span className="w-3 h-1 bg-red-500 rounded" /> Critical</span>
+                <div className="flex gap-4 text-xs text-[#64748B]">
+                    <span className="flex items-center gap-1"><span className="w-3 h-1 bg-[#16A34A] rounded" /> Healthy Flow</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-1 bg-[#F59E0B] rounded" /> Warning</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-1 bg-[#DC2626] rounded" /> Critical</span>
                 </div>
             </div>
 
@@ -124,9 +124,9 @@ export default function SankeyDiagram({ data }) {
                 <g>
                     {sankeyData.links.map((link, i) => {
                         const utilization = link.value > 0 ? (link.spent / link.value) * 100 : 0;
-                        const linkColor = utilization >= 70 ? 'rgba(34,197,94,0.25)' :
-                            utilization >= 50 ? 'rgba(234,179,8,0.25)' :
-                                'rgba(239,68,68,0.25)';
+                        const linkColor = utilization >= 70 ? 'rgba(22,163,74,0.2)' :
+                            utilization >= 50 ? 'rgba(245,158,11,0.2)' :
+                                'rgba(220,38,38,0.2)';
                         const isHovered = hoveredLink === i;
 
                         return (
@@ -134,7 +134,7 @@ export default function SankeyDiagram({ data }) {
                                 key={`link-${i}`}
                                 d={sankeyLinkHorizontal()(link)}
                                 fill="none"
-                                stroke={isHovered ? (utilization >= 70 ? '#22c55e' : utilization >= 50 ? '#eab308' : '#ef4444') : linkColor}
+                                stroke={isHovered ? (utilization >= 70 ? '#16A34A' : utilization >= 50 ? '#F59E0B' : '#DC2626') : linkColor}
                                 strokeWidth={Math.max(2, link.width)}
                                 strokeOpacity={isHovered ? 0.8 : hoveredLink !== null ? 0.1 : 0.4}
                                 onMouseEnter={() => setHoveredLink(i)}
@@ -170,7 +170,7 @@ export default function SankeyDiagram({ data }) {
                                     y={(node.y0 + node.y1) / 2}
                                     dy="0.35em"
                                     fontSize={11}
-                                    fill="rgba(255,255,255,0.7)"
+                                    fill="#0F172A"
                                     fontWeight={hoveredNode === i ? 600 : 400}
                                 >
                                     {node.name}
@@ -181,7 +181,7 @@ export default function SankeyDiagram({ data }) {
                                     y={(node.y0 + node.y1) / 2}
                                     dy="0.35em"
                                     fontSize={11}
-                                    fill="rgba(255,255,255,0.7)"
+                                    fill="#0F172A"
                                     textAnchor="end"
                                     fontWeight={hoveredNode === i ? 600 : 400}
                                 >
@@ -200,11 +200,11 @@ export default function SankeyDiagram({ data }) {
                     const tgtName = sankeyData.nodes[link.target.index]?.name || '';
                     return (
                         <g>
-                            <rect x={dimensions.width / 2 - 120} y={10} width={240} height={55} rx={8} fill="rgba(15,21,71,0.95)" stroke="rgba(255,255,255,0.1)" />
-                            <text x={dimensions.width / 2} y={30} textAnchor="middle" fontSize={11} fill="white" fontWeight={600}>
+                            <rect x={dimensions.width / 2 - 120} y={10} width={240} height={55} rx={8} fill="rgba(255,255,255,0.97)" stroke="#E2E8F0" />
+                            <text x={dimensions.width / 2} y={30} textAnchor="middle" fontSize={11} fill="#0F172A" fontWeight={600}>
                                 {srcName} → {tgtName}
                             </text>
-                            <text x={dimensions.width / 2} y={50} textAnchor="middle" fontSize={10} fill="rgba(255,255,255,0.6)">
+                            <text x={dimensions.width / 2} y={50} textAnchor="middle" fontSize={10} fill="#64748B">
                                 Allocated: {formatCurrency(link.value)} | Utilization: {util}%
                             </text>
                         </g>
