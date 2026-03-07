@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { APP_NAME } from '../../config/constants';
 import logoUrl from '../../assets/logo.png';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
@@ -20,6 +21,7 @@ const navItems = [
 
 export default function Sidebar() {
     const location = useLocation();
+    const { user, logout } = useAuth();
 
     return (
         <aside className="w-60 h-screen bg-[#1E3A8A] flex flex-col fixed left-0 top-0 z-40">
@@ -55,6 +57,18 @@ export default function Sidebar() {
                 })}
             </nav>
 
+            {/* User Profile */}
+            {user && (
+                <div className="p-4 border-t border-white/10 mt-auto">
+                    <div className="flex items-center gap-3">
+                        <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full border-2 border-white/20 bg-white/10" referrerPolicy="no-referrer" />
+                        <div className="flex flex-col flex-1 min-w-0">
+                            <span className="text-sm font-semibold text-white truncate">{user.displayName || 'User'}</span>
+                            <button onClick={logout} className="text-xs text-left text-white/60 hover:text-white transition">Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </aside>
     );
 }
