@@ -1,12 +1,19 @@
 import { useState, useMemo } from 'react';
 import { useFilterContext } from '../context/FilterContext';
+import { runFullAnalysis } from '../services/analyticsEngine';
 import AnomalyCard from '../components/cards/AnomalyCard';
 import { explainAnomaly } from '../services/groqService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Filter, X, Brain, Loader2 } from 'lucide-react';
 
 export default function Anomalies() {
-    const { analysis, loading } = useFilterContext();
+    const { allData, loading } = useFilterContext();
+
+    // Run analysis over the ENTIRE dataset (ignoring filters) as requested
+    const analysis = useMemo(() => {
+        if (!allData || allData.length === 0) return null;
+        return runFullAnalysis(allData);
+    }, [allData]);
     const [selectedAnomaly, setSelectedAnomaly] = useState(null);
     const [explanation, setExplanation] = useState('');
     const [explaining, setExplaining] = useState(false);
