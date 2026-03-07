@@ -116,17 +116,6 @@ export default function Header() {
                     <Download size={14} />
                     Export Data
                 </button>
-
-                {/* Bell */}
-                <button className="relative p-2 rounded-lg hover:bg-white/10 transition-colors">
-                    <Bell size={18} className="text-white/80" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#F59E0B] rounded-full" />
-                </button>
-
-                {/* Avatar */}
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    <User size={16} className="text-white" />
-                </div>
             </div>
         </header>
     );
