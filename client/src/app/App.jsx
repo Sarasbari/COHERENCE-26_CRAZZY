@@ -14,6 +14,7 @@ import BudgetFlowVisualization from '../pages/BudgetFlowVisualization';
 import BudgetOverview from '../pages/BudgetOverview';
 import DistrictComparisonMode from '../pages/DistrictComparisonMode';
 import ExportPDFMultilang from '../pages/ExportPDFMultilang';
+import Reallocation from '../pages/Reallocation';
 
 function AuthenticatedRoutes() {
     return (
@@ -37,6 +38,7 @@ function AuthenticatedRoutes() {
                     <Route path="/dashboard/budget-flow" element={<BudgetFlowVisualization />} />
                     <Route path="/dashboard/budget-overview" element={<BudgetOverview />} />
                     <Route path="/dashboard/comparison" element={<DistrictComparisonMode />} />
+                    <Route path="/dashboard/reallocation" element={<Reallocation />} />
                     <Route path="/dashboard/export" element={<ExportPDFMultilang />} />
                 </Route>
 

@@ -16,6 +16,7 @@ const navItems = [
     { path: '/dashboard/anomalies', icon: AlertTriangle, label: 'Leakage Detection' },
     { path: '/dashboard/predict', icon: BarChart2, label: 'Department Analysis' },
     { path: '/dashboard/comparison', icon: GitCompareArrows, label: 'Compare Intel' },
+    { path: '/dashboard/reallocation', icon: ArrowLeftRight, label: 'Fund Reallocation' },
     { path: '/dashboard/export', icon: Languages, label: 'Export Reports' },
 ];
 

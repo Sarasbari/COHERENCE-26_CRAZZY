@@ -286,3 +286,65 @@ export function getDepartmentLeaderboard(records) {
         }))
         .sort((a, b) => b.score - a.score);
 }
+
+// ========================
+// REALLOCATION CANDIDATES
+// ========================
+export function getReallocationCandidates(records) {
+    const candidates = {
+        sources: [], // Idle funds (Utilization < 40%)
+        targets: []  // Starved/High need (Utilization > 85%)
+    };
+
+    // Group by division, district, department
+    const groups = {};
+    records.forEach(r => {
+        const key = `${r.divisionName}|${r.district}|${r.departmentName}`;
+        if (!groups[key]) {
+            groups[key] = {
+                id: key,
+                division: r.divisionName,
+                district: r.district,
+                department: r.departmentName,
+                allocated: 0,
+                spent: 0,
+                released: 0
+            };
+        }
+        groups[key].allocated += r.allocated;
+        groups[key].spent += r.spent;
+        groups[key].released += r.released;
+    });
+
+    Object.values(groups).forEach(g => {
+        if (g.allocated === 0) return;
+        const utilization = (g.spent / g.allocated) * 100;
+        
+        // Idle source if utilization < 60%
+        if (utilization < 60) {
+            // Idle capacity
+            const idleAmount = g.allocated - g.spent;
+            candidates.sources.push({
+                ...g,
+                utilization,
+                availableAmount: idleAmount,
+                label: `${g.department} (${g.district}) - ${utilization.toFixed(1)}% Utilized`
+            });
+        } 
+        // Deficit Target if utilization > 75%
+        else if (utilization > 75) {
+            // High need capacity
+            candidates.targets.push({
+                ...g,
+                utilization,
+                label: `${g.department} (${g.district}) - ${utilization.toFixed(1)}% Utilized`
+            });
+        }
+    });
+
+    // Sort: Sources (lowest utilization first), Targets (highest utilization first)
+    candidates.sources.sort((a, b) => a.utilization - b.utilization);
+    candidates.targets.sort((a, b) => b.utilization - a.utilization);
+
+    return candidates;
+}
