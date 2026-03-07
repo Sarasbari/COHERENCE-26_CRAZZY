@@ -11,6 +11,7 @@ import Chat from '../pages/Chat';
 import Reports from '../pages/Reports';
 import Leaderboard from '../pages/Leaderboard';
 import BudgetFlowVisualization from '../pages/BudgetFlowVisualization';
+import BudgetOverview from '../pages/BudgetOverview';
 import DistrictComparisonMode from '../pages/DistrictComparisonMode';
 import ExportPDFMultilang from '../pages/ExportPDFMultilang';
 
@@ -34,6 +35,7 @@ function AuthenticatedRoutes() {
                     <Route path="/dashboard/reports" element={<Reports />} />
                     <Route path="/dashboard/leaderboard" element={<Leaderboard />} />
                     <Route path="/dashboard/budget-flow" element={<BudgetFlowVisualization />} />
+                    <Route path="/dashboard/budget-overview" element={<BudgetOverview />} />
                     <Route path="/dashboard/comparison" element={<DistrictComparisonMode />} />
                     <Route path="/dashboard/export" element={<ExportPDFMultilang />} />
                 </Route>
