@@ -12,6 +12,7 @@ import Reports from '../pages/Reports';
 import Leaderboard from '../pages/Leaderboard';
 import BudgetFlowVisualization from '../pages/BudgetFlowVisualization';
 import DistrictComparisonMode from '../pages/DistrictComparisonMode';
+import ExportPDFMultilang from '../pages/ExportPDFMultilang';
 
 function AuthenticatedRoutes() {
     return (
@@ -34,6 +35,7 @@ function AuthenticatedRoutes() {
                     <Route path="/dashboard/leaderboard" element={<Leaderboard />} />
                     <Route path="/dashboard/budget-flow" element={<BudgetFlowVisualization />} />
                     <Route path="/dashboard/comparison" element={<DistrictComparisonMode />} />
+                    <Route path="/dashboard/export" element={<ExportPDFMultilang />} />
                 </Route>
 
                 {/* Catch-all redirect */}

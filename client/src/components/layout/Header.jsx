@@ -2,7 +2,7 @@ import { Bell, ChevronDown, Download, User, Check, FileText } from 'lucide-react
 import { useFilterContext } from '../../context/FilterContext';
 import { useState, useRef, useEffect } from 'react';
 import { DIVISIONS } from '../../config/constants';
-import html2pdf from 'html2pdf.js';
+import { useNavigate } from 'react-router-dom';
 
 // Custom Dropdown Component
 function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" }) {
@@ -67,6 +67,7 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
 
 export default function Header() {
     const { filteredData, filters, updateFilter, meta } = useFilterContext();
+    const navigate = useNavigate();
 
     const handleExportCSV = () => {
         if (!filteredData || filteredData.length === 0) {
@@ -103,33 +104,7 @@ export default function Header() {
     };
 
     const handleExportPDF = () => {
-        const element = document.getElementById('dashboard-pdf-content');
-        if (!element) {
-            alert('No dashboard content available to export.');
-            return;
-        }
-
-        const opt = {
-            margin: 0.3,
-            filename: `dashboard_analysis_report_${new Date().toISOString().slice(0, 10)}.pdf`,
-            image: { type: 'jpeg', quality: 1.0 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#F8FAFC',
-                windowWidth: element.scrollWidth,
-                windowHeight: element.scrollHeight,
-                logging: false
-            },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
-        };
-
-        const originalOverflow = element.style.overflow;
-        element.style.overflow = 'visible';
-
-        html2pdf().from(element).set(opt).save().then(() => {
-            element.style.overflow = originalOverflow;
-        });
+        navigate('/dashboard/export');
     };
 
     const years = meta?.fiscalYears || [];
