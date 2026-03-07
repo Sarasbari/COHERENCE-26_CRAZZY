@@ -110,10 +110,10 @@ function normalizeRecord(doc, source) {
         spent = Number(doc.amount_spent_lakhs) || 0;
     } else if (source === COLLECTIONS.HEALTH_BUDGET) {
         // maharashtra_health_budget: nhm_approved_budget_inr_cr, nhm_funds_released_inr_cr, nhm_actual_expenditure_inr_cr
-        // Values are in Crores — convert to Lakhs (1 Cr = 100 Lakhs) for consistency
-        allocated = (Number(doc.nhm_approved_budget_inr_cr) || 0) * 100;
-        released = (Number(doc.nhm_funds_released_inr_cr) || 0) * 100;
-        spent = (Number(doc.nhm_actual_expenditure_inr_cr) || 0) * 100;
+        // Values are in Crores
+        allocated = (Number(doc.nhm_approved_budget_inr_cr) || 0);
+        released = (Number(doc.nhm_funds_released_inr_cr) || 0);
+        spent = (Number(doc.nhm_actual_expenditure_inr_cr) || 0);
     } else if (source === COLLECTIONS.ENVIRONMENT) {
         // To allow environmental metrics to be plotted, we trick 'allocated' and 'spent' 
         // to equal forest_cover_sqkm, giving it volume in the visualizer without destroying 'spent' logic.

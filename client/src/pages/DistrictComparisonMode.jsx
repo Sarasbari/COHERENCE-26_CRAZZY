@@ -181,7 +181,7 @@ function MetricRow({ label, value, icon, color, pulse }) {
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 11, color: C.muted, fontFamily: "'DM Sans', sans-serif" }}>{label}</div>
         <div style={{ fontSize: 18, fontWeight: 700, color: color || C.text, fontFamily: "'DM Sans', sans-serif", animation: pulse ? 'leakPulse 2s ease-in-out infinite' : 'none' }}>
-          <Counter value={value} prefix="₹ " suffix=" L" color={color} />
+          <Counter value={value} prefix="₹ " suffix=" Cr" color={color} />
         </div>
       </div>
     </div>
@@ -264,9 +264,9 @@ function Panel({ data, accentColor, animKey }) {
 /* ── Delta Column ── */
 function DeltaColumn({ left, right }) {
   const deltas = [
-    { label: 'Allocation', l: left.allocated, r: right.allocated, unit: ' L', higherBetter: true },
+    { label: 'Allocation', l: left.allocated, r: right.allocated, unit: ' Cr', higherBetter: true },
     { label: 'Utilisation', l: left.utilPct, r: right.utilPct, unit: '%', higherBetter: true },
-    { label: 'Unspent/Leakage', l: left.leakage, r: right.leakage, unit: ' L', higherBetter: false },
+    { label: 'Unspent/Leakage', l: left.leakage, r: right.leakage, unit: ' Cr', higherBetter: false },
     { label: 'Farmers', l: left.farmers, r: right.farmers, unit: '', higherBetter: true },
   ];
 

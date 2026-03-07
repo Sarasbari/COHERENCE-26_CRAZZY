@@ -1,12 +1,9 @@
-// Format number as Indian currency (₹ Cr or ₹ Lakh)
-export function formatCurrency(amount, inLakhs = true) {
+// Format number as Indian currency (₹ Cr)
+export function formatCurrency(amount, isCrore = true) {
     if (amount === 0) return '₹0';
 
-    if (inLakhs) {
-        if (amount >= 10000) {
-            return `₹${(amount / 100).toFixed(1)} Cr`;
-        }
-        return `₹${amount.toFixed(1)} L`;
+    if (isCrore) {
+        return `₹${amount.toFixed(2)} Cr`;
     }
 
     // Raw number formatting
@@ -22,7 +19,7 @@ export function formatPercent(value) {
 // Format large numbers with Indian notation
 export function formatNumber(num) {
     if (num >= 10000000) return `${(num / 10000000).toFixed(1)} Cr`;
-    if (num >= 100000) return `${(num / 100000).toFixed(1)} L`;
+    if (num >= 100000) return `${(num / 100000).toFixed(1)} Cr`; // Assuming scaled data
     if (num >= 1000) return `${(num / 1000).toFixed(1)} K`;
     return num.toString();
 }

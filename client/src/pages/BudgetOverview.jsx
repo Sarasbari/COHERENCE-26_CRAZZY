@@ -4,45 +4,38 @@ import {
     Building2, ShieldCheck, Lock, Landmark,
     CheckCircle2, Link2, Leaf, Sprout, Wheat
 } from 'lucide-react';
+import { useFilterContext } from '../context/FilterContext';
 
 /* ═══════════════════════════════════════════════════════════════
-   DATA – Only Maharashtra's 3 target divisions
+   DATA – Base config for divisions
    ═══════════════════════════════════════════════════════════════ */
 
-const DIVISIONS = [
-    {
-        id: 'amravati',
+const DIVISIONS_CONFIG = {
+    amravati: {
         name: 'AMRAVATI',
-        amount: '₹28,540 Cr',
         focus: 'Cotton Belt + Irrigation + Rural Dev',
         color: '#16A34A',
         icon: Leaf,
         prevHash: '0x2e...0b12',
-        currHash: '5c77...f954',
+        currHash: '5c77...f954'
     },
-    {
-        id: 'aurangabad',
+    aurangabad: {
         name: 'AURANGABAD',
-        amount: '₹35,820 Cr',
         focus: 'Marathwada Dev. + Water Grid + Edu',
         color: '#3B82F6',
         icon: Wheat,
         prevHash: '0206...1340',
         currHash: '3463...6da7',
     },
-    {
-        id: 'nagpur',
+    nagpur: {
         name: 'NAGPUR',
-        amount: '₹19,680 Cr',
         focus: 'Vidarbha Irrigation + Metro + Industry',
         color: '#F59E0B',
         icon: Sprout,
         prevHash: '0b84...2965',
         currHash: '5977...158c',
-    },
-];
-
-const TOTAL_BUDGET = '1,12,780';
+    }
+};
 
 /* ═══════════════════════════════════════════════════════════════
    ANIMATION PRESETS
@@ -167,7 +160,7 @@ function TreeBranch({ delay = 0.8 }) {
                 {/* Branch to Amravati (left) */}
                 <motion.line
                     x1="167" y1="35" x2="167" y2="90"
-                    stroke={DIVISIONS[0].color} strokeWidth="3" strokeLinecap="round"
+                    stroke={DIVISIONS_CONFIG.amravati.color} strokeWidth="3" strokeLinecap="round"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                     transition={{ delay: delay + 0.6, duration: 0.3, ease }}
                 />
@@ -175,7 +168,7 @@ function TreeBranch({ delay = 0.8 }) {
                 {/* Branch to Aurangabad (center) */}
                 <motion.line
                     x1="500" y1="35" x2="500" y2="90"
-                    stroke={DIVISIONS[1].color} strokeWidth="3" strokeLinecap="round"
+                    stroke={DIVISIONS_CONFIG.aurangabad.color} strokeWidth="3" strokeLinecap="round"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                     transition={{ delay: delay + 0.7, duration: 0.3, ease }}
                 />
@@ -183,16 +176,16 @@ function TreeBranch({ delay = 0.8 }) {
                 {/* Branch to Nagpur (right) */}
                 <motion.line
                     x1="833" y1="35" x2="833" y2="90"
-                    stroke={DIVISIONS[2].color} strokeWidth="3" strokeLinecap="round"
+                    stroke={DIVISIONS_CONFIG.nagpur.color} strokeWidth="3" strokeLinecap="round"
                     initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
                     transition={{ delay: delay + 0.8, duration: 0.3, ease }}
                 />
 
                 {/* Node dots */}
                 {[
-                    { x: 167, color: DIVISIONS[0].color, d: 0.7 },
-                    { x: 500, color: DIVISIONS[1].color, d: 0.8 },
-                    { x: 833, color: DIVISIONS[2].color, d: 0.9 },
+                    { x: 167, color: DIVISIONS_CONFIG.amravati.color, d: 0.7 },
+                    { x: 500, color: DIVISIONS_CONFIG.aurangabad.color, d: 0.8 },
+                    { x: 833, color: DIVISIONS_CONFIG.nagpur.color, d: 0.9 },
                 ].map((n, i) => (
                     <g key={i}>
                         {/* Outer glow ring */}
@@ -235,7 +228,7 @@ function TreeBranch({ delay = 0.8 }) {
    COMPONENT – Ministry Card (Top)
    ═══════════════════════════════════════════════════════════════ */
 
-function MinistryCard() {
+function MinistryCard({ totalBudgetStr, fyDisplayString }) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -268,13 +261,13 @@ function MinistryCard() {
                                 <h3 className="text-base font-bold text-white">Ministry of Finance, GoI</h3>
                                 <SecuredBadge />
                             </div>
-                            <p className="text-xs text-white/40 mt-1">Tax Devolution + Grants-in-Aid (15th FC)</p>
+                            <p className="text-xs text-white/40 mt-1">Tax Devolution ({fyDisplayString} • 15th FC)</p>
                         </div>
                     </div>
                     <div className="text-right">
                         <p className="text-3xl font-black text-white tracking-tight flex items-baseline gap-1.5">
                             <span className="text-sm font-bold text-white/50">₹</span>
-                            {TOTAL_BUDGET}
+                            {totalBudgetStr}
                             <span className="text-sm font-bold text-white/50">Cr</span>
                         </p>
                     </div>
@@ -290,7 +283,7 @@ function MinistryCard() {
    COMPONENT – State Treasury Card
    ═══════════════════════════════════════════════════════════════ */
 
-function TreasuryCard() {
+function TreasuryCard({ totalBudgetStr, fyDisplayString }) {
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -319,13 +312,13 @@ function TreasuryCard() {
                                 <h3 className="text-base font-bold text-slate-800">Maharashtra State Treasury</h3>
                                 <SecuredBadge />
                             </div>
-                            <p className="text-xs text-slate-400 mt-1">State Budget Distribution FY 2024-25</p>
+                            <p className="text-xs text-slate-400 mt-1">State Budget Distribution {fyDisplayString}</p>
                         </div>
                     </div>
                     <div className="text-right">
                         <p className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-baseline gap-1">
                             <span className="text-sm font-bold text-slate-400">₹</span>
-                            {TOTAL_BUDGET}
+                            {totalBudgetStr}
                             <span className="text-sm font-bold text-slate-400">Cr</span>
                         </p>
                     </div>
@@ -439,6 +432,45 @@ function DivisionCard({ division, delay }) {
    ═══════════════════════════════════════════════════════════════ */
 
 export default function BudgetOverview() {
+    const { filteredData, filters, meta } = useFilterContext();
+
+    // Sum across divisions purely for budget tracking (exclude environment data since it's sqkm)
+    const metrics = { amravati: 0, aurangabad: 0, nagpur: 0 };
+    let totalBudgetCrores = 0;
+
+    if (filteredData) {
+        filteredData.forEach(item => {
+            if (item._source !== 'maharashtra_environment_real') {
+                const divId = item.division;
+                const allocVal = parseFloat(item.allocated) || 0;
+
+                if (metrics[divId] !== undefined) {
+                    metrics[divId] += allocVal;
+                }
+                totalBudgetCrores += allocVal;
+            }
+        });
+    }
+
+    const totalBudgetStr = totalBudgetCrores.toLocaleString('en-IN', { maximumFractionDigits: 1 });
+
+    const dynamicDivisions = Object.keys(DIVISIONS_CONFIG).map(id => ({
+        id,
+        ...DIVISIONS_CONFIG[id],
+        amount: `₹${metrics[id].toLocaleString('en-IN', { maximumFractionDigits: 1 })} Cr`
+    }));
+
+    // Construct the active Fiscal Year display string based on context state
+    let fyDisplayString = "All Years";
+    if (filters?.fiscalYear) {
+        fyDisplayString = filters.fiscalYear.startsWith("All") ? filters.fiscalYear : `FY ${filters.fiscalYear}`;
+    } else if (meta?.fiscalYears?.length) {
+        const sortedYears = [...meta.fiscalYears].filter(y => !y.startsWith('All')).sort();
+        if (sortedYears.length > 0) {
+            fyDisplayString = `FY ${sortedYears[0]} to FY ${sortedYears[sortedYears.length - 1]}`;
+        }
+    }
+
     return (
         <div className="relative min-h-screen bg-gradient-to-b from-slate-50 to-white pb-16 overflow-hidden">
             {/* Subtle background decoration */}
@@ -459,7 +491,7 @@ export default function BudgetOverview() {
                             Budget Overview
                         </h1>
                         <p className="text-xs text-slate-400">
-                            Maharashtra • FY 2024-25 • Blockchain-verified fund flow
+                            Maharashtra • {fyDisplayString} • Blockchain-verified fund flow
                         </p>
                     </div>
                 </div>
@@ -468,20 +500,20 @@ export default function BudgetOverview() {
             {/* Flow Content */}
             <div className="relative max-w-5xl mx-auto px-6 pt-4 z-10 flex flex-col items-center">
                 {/* Ministry of Finance */}
-                <MinistryCard />
+                <MinistryCard totalBudgetStr={totalBudgetStr} fyDisplayString={fyDisplayString} />
 
                 {/* Animated vertical connector */}
                 <VerticalConnector height={60} color="#6366F1" delay={0.3} />
 
                 {/* State Treasury */}
-                <TreasuryCard />
+                <TreasuryCard totalBudgetStr={totalBudgetStr} fyDisplayString={fyDisplayString} />
 
                 {/* Tree Branch Connector */}
                 <TreeBranch delay={0.9} />
 
                 {/* Division Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full relative z-10">
-                    {DIVISIONS.map((div, idx) => (
+                    {dynamicDivisions.map((div, idx) => (
                         <DivisionCard
                             key={div.id}
                             division={div}

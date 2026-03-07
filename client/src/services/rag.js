@@ -58,7 +58,7 @@ export async function loadDatasetContext(query) {
     if (matchedAgri.length > 0) {
         contextText += "\n[Agriculture Budget Data]:\n";
         matchedAgri.forEach(record => {
-            contextText += `District: ${record.District} (${record.Year}) | Crop: ${record.Crop} | Allocated: ₹${record.Budget_Allocated_Lakhs} Lakhs | Spent: ₹${record.Budget_Utilized_Lakhs} Lakhs | Utilization: ${record.Utilization_Percent}% | Farmer Count: ${record.Farmer_Count}\n`;
+            contextText += `District: ${record.District} (${record.Year}) | Crop: ${record.Crop} | Allocated: ₹${record.Budget_Allocated_Lakhs} Cr | Spent: ₹${record.Budget_Utilized_Lakhs} Cr | Utilization: ${record.Utilization_Percent}% | Farmer Count: ${record.Farmer_Count}\n`;
         });
     }
 

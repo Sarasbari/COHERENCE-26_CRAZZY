@@ -8,11 +8,9 @@ import { DEPARTMENTS, DIVISIONS } from '../config/constants';
 
 // ─── Format helpers ──────────────────────────────────────────
 
-function formatLakhs(value) {
-    if (value >= 10000000) return `₹${(value / 10000000).toFixed(1)} Cr`;
-    if (value >= 100000) return `₹${(value / 100000).toFixed(1)} L`;
-    if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-    return `₹${value}`;
+function formatCrores(value) {
+    if (!value) return '₹0';
+    return `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 1 })} Cr`;
 }
 
 // ─── KPI Card Component ──────────────────────────────────────
@@ -63,7 +61,7 @@ function CustomTooltip({ active, payload, label }) {
             <p className="text-[#0F172A] font-medium mb-1">{label}</p>
             {payload.map((p, i) => (
                 <p key={i} style={{ color: p.color }}>
-                    {p.name}: {formatLakhs(p.value)}
+                    {p.name}: {formatCrores(p.value)}
                 </p>
             ))}
         </div>
@@ -184,7 +182,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-4 gap-4">
                 <KPICard
                     label="Total Budget"
-                    value={kpis ? formatLakhs(kpis.totalAllocated) : '—'}
+                    value={kpis ? formatCrores(kpis.totalAllocated) : '—'}
                     sub={`${allData.length} records tracked`}
                     subColor="#16A34A"
                     icon={Wallet}
@@ -193,7 +191,7 @@ export default function Dashboard() {
                 />
                 <KPICard
                     label="Funds Released"
-                    value={kpis ? formatLakhs(kpis.totalReleased) : '—'}
+                    value={kpis ? formatCrores(kpis.totalReleased) : '—'}
                     sub={kpis ? `${((kpis.totalReleased / (kpis.totalAllocated || 1)) * 100).toFixed(1)}% of allocated` : '—'}
                     subColor="#16A34A"
                     icon={Monitor}
@@ -319,7 +317,7 @@ export default function Dashboard() {
                                 {/* Center label */}
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                                     <span className="text-xs text-[#64748B]">Total</span>
-                                    <span className="text-lg font-bold text-[#0F172A]">{formatLakhs(donutTotal)}</span>
+                                    <span className="text-lg font-bold text-[#0F172A]">{formatCrores(donutTotal)}</span>
                                 </div>
                             </div>
                             {/* Legend */}
@@ -388,7 +386,7 @@ export default function Dashboard() {
                                 return (
                                     <tr key={i} className="border-b border-[#F1F5F9] hover:bg-[#F8FAFC] transition-colors">
                                         <td className="py-3.5 px-2 text-sm text-[#0F172A] font-medium">{row.district}</td>
-                                        <td className="py-3.5 px-2 text-sm text-[#0F172A]">{formatLakhs(row.allocated)}</td>
+                                        <td className="py-3.5 px-2 text-sm text-[#0F172A]">{formatCrores(row.allocated)}</td>
                                         <td className="py-3.5 px-2">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-24 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">

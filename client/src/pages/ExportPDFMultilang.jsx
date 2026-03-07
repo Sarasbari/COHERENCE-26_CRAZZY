@@ -31,8 +31,8 @@ const T = {
     detectedAnomalies: 'Detected Anomalies',
     estimatedLeakage: 'Estimated Leakage',
     division: 'Division',
-    allocated: 'Allocated (₹ Lakh)',
-    spent: 'Spent (₹ Lakh)',
+    allocated: 'Allocated (₹ Cr)',
+    spent: 'Spent (₹ Cr)',
     utilisation: 'Utilisation %',
     department: 'Department',
     progress: 'Progress',
@@ -73,8 +73,8 @@ const T = {
     detectedAnomalies: 'पहचानी गई विसंगतियां',
     estimatedLeakage: 'अनुमानित रिसाव',
     division: 'प्रभाग',
-    allocated: 'आवंटित (₹ लाख)',
-    spent: 'व्यय (₹ लाख)',
+    allocated: 'आवंटित (₹ करोड़)',
+    spent: 'व्यय (₹ करोड़)',
     utilisation: 'उपयोग %',
     department: 'विभाग',
     progress: 'प्रगति',
@@ -115,8 +115,8 @@ const T = {
     detectedAnomalies: 'आढळलेल्या विसंगती',
     estimatedLeakage: 'अंदाजित गळती',
     division: 'विभाग',
-    allocated: 'वाटप (₹ लाख)',
-    spent: 'खर्च (₹ लाख)',
+    allocated: 'वाटप (₹ कोटी)',
+    spent: 'खर्च (₹ कोटी)',
     utilisation: 'वापर %',
     department: 'विभाग',
     progress: 'प्रगती',
@@ -157,8 +157,8 @@ const T = {
     detectedAnomalies: 'મળેલ વિસંગતતાઓ',
     estimatedLeakage: 'અંદાજિત ગળતી',
     division: 'વિભાગ',
-    allocated: 'ફાળવણી (₹ લાખ)',
-    spent: 'ખર્ચ (₹ લાખ)',
+    allocated: 'ફાળવણી (₹ કરોડ)',
+    spent: 'ખર્ચ (₹ કરોડ)',
     utilisation: 'ઉપયોગ %',
     department: 'વિભાગ',
     progress: 'પ્રગતિ',
@@ -199,8 +199,8 @@ const T = {
     detectedAnomalies: 'دریافت شدہ بے قاعدگیاں',
     estimatedLeakage: 'تخمینی لیکیج',
     division: 'ڈویژن',
-    allocated: 'مختص (₹ لاکھ)',
-    spent: 'خرچ (₹ لاکھ)',
+    allocated: 'مختص (₹ کروڑ)',
+    spent: 'خرچ (₹ کروڑ)',
     utilisation: 'استعمال %',
     department: 'محکمہ',
     progress: 'پیش رفت',
@@ -317,8 +317,8 @@ tr:nth-child(even){background:#F8FAFC}
   <div class="section">
     <div class="section-title">💰 ${t.keyMetrics}</div>
     <div class="metrics-grid">
-      <div class="metric-card"><div class="value" style="color:${C.govBlue}">₹91,32,527 L</div><div class="label">${t.totalBudget}</div></div>
-      <div class="metric-card"><div class="value" style="color:${C.brightBlue}">₹72,25,617 L</div><div class="label">${t.totalExpenditure}</div></div>
+      <div class="metric-card"><div class="value" style="color:${C.govBlue}">₹91,32,527 Cr</div><div class="label">${t.totalBudget}</div></div>
+      <div class="metric-card"><div class="value" style="color:${C.brightBlue}">₹72,25,617 Cr</div><div class="label">${t.totalExpenditure}</div></div>
       <div class="metric-card"><div class="value" style="color:${C.green}">80%</div><div class="label">${t.avgUtilisation}</div></div>
       <div class="metric-card"><div class="value" style="color:${C.govBlue}">1,16,27,803</div><div class="label">${t.beneficiaryFarmers}</div></div>
       <div class="metric-card"><div class="value" style="color:${C.red}">3</div><div class="label">${t.detectedAnomalies}</div></div>

@@ -14,7 +14,7 @@ Your capabilities:
 - Forecast fund lapse risks based on spending velocity
 - Generate executive summaries for decision-makers
 
-Always respond in a professional, data-driven tone. Use Indian currency notation (₹ Cr, ₹ Lakh). Reference specific districts, departments, and fiscal years when available. Keep responses concise but insightful.`;
+Always respond in a professional, data-driven tone. Use Indian currency notation (₹ Cr). Reference specific districts, departments, and fiscal years when available. Keep responses concise but insightful.`;
 
 export async function queryGroq(userMessage, context = {}) {
     try {
