@@ -171,7 +171,7 @@ export default function ChatBot() {
                     className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:scale-105 transition-transform flex-shrink-0"
                 >
                     {!isOpen && <span className="absolute inset-0 rounded-full border-2 border-orange-400 animate-ping opacity-75"></span>}
-                    {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+                    {isOpen ? <X size={24} /> : <Bot size={24} />}
                 </button>
             </div>
 
@@ -201,11 +201,11 @@ export default function ChatBot() {
                         {/* HEADER */}
                         <div className="p-4 border-b border-[#334155]/30 flex items-center justify-between bg-gradient-to-b from-[#1e1e28]/80 to-transparent">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-500 flex items-center justify-center font-bold font-mono">
-                                    A
+                                <div className="w-8 h-8 flex items-center justify-center">
+                                    <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                                 </div>
                                 <div>
-                                    <h2 className="text-white font-bold text-base leading-tight">ARTHRAKSHAK AI</h2>
+                                    <h2 className="text-white font-bold text-base leading-tight">ARTHASHEtra AI</h2>
                                     <p className="text-xs text-gray-400 leading-tight">Powered by Llama 3.3 70B</p>
                                 </div>
                             </div>
@@ -229,9 +229,9 @@ export default function ChatBot() {
                                         <Bot size={32} className="text-orange-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-white font-bold text-lg mb-1">Ask ARTHRAKSHAK AI</h3>
+                                        <h3 className="text-white font-bold text-lg mb-1">Ask ARTHASHEtra AI</h3>
                                         <p className="text-sm text-gray-400 max-w-[250px] mx-auto">
-                                            Answers grounded in Maharashtra FY 2023-24 budget data
+                                            Answers grounded in Maharashtra state budget data
                                         </p>
                                     </div>
                                     <div className="flex flex-col gap-2 w-full mt-4">

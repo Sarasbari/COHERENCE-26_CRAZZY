@@ -33,8 +33,7 @@ import {
     ArrowUpRight,
     ArrowDownRight,
 } from 'lucide-react';
-import { db } from '../config/firebase';
-import { fetchAllData } from '../services/firebaseService';
+import { useFilterContext } from '../context/FilterContext';
 
 /* ═══════════════════════════════════════════════════════════════
    §1  FIREBASE DATA HOOK
@@ -103,106 +102,98 @@ const FALLBACK_DIVISIONS = [
 ];
 
 function useBudgetData() {
+    const { filteredData, loading: contextLoading, dataSource, filters } = useFilterContext();
     const [divisions, setDivisions] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [isLive, setIsLive] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!db) {
+        if (contextLoading) return;
+
+        if (!filteredData || filteredData.length === 0) {
             setDivisions(FALLBACK_DIVISIONS);
-            setLoading(false);
             setIsLive(false);
             return;
         }
 
-        async function fetchData() {
-            try {
-                // Fetch all data across all collections
-                const { records } = await fetchAllData();
-
-                // Aggregate by division
-                const divMap = {};
-                records.forEach((r) => {
-                    const divName = r.divisionName.replace(' Division', '');
-                    if (!divMap[divName]) {
-                        divMap[divName] = {
-                            totalAllocated: 0,
-                            totalSpent: 0,
-                            districts: new Set(),
-                            schemes: {},
-                            farmerCount: 0,
-                            topCrop: '',
-                        };
-                    }
-
-                    divMap[divName].totalAllocated += r.allocated;
-                    divMap[divName].totalSpent += r.spent;
-                    if (r.district) divMap[divName].districts.add(r.district);
-
-                    // Extract raw specific fields mapping to different schemes
-                    if (r._raw) {
-                        if (r._raw.farmer_count) divMap[divName].farmerCount += r._raw.farmer_count;
-                        if (r._raw.crop) divMap[divName].topCrop = r._raw.crop;
-
-                        const schemeName = r._raw.scheme_name || (r._source === 'maharashtra_health_budget' ? 'NHM Govt Health' : 'General State Fund');
-                        if (!divMap[divName].schemes[schemeName]) {
-                            divMap[divName].schemes[schemeName] = { sanctioned: 0, spent: 0 };
-                        }
-                        divMap[divName].schemes[schemeName].sanctioned += r.allocated;
-                        divMap[divName].schemes[schemeName].spent += r.spent;
-                    }
-                });
-
-                const colors = { Amravati: '#16A34A', Nagpur: '#F59E0B', Aurangabad: '#3B82F6', Konkan: '#8B5CF6', Pune: '#EC4899', Nashik: '#06B6D4' };
-                const colorLights = { Amravati: '#DCFCE7', Nagpur: '#FEF3C7', Aurangabad: '#DBEAFE', Konkan: '#F3E8FF', Pune: '#FCE7F3', Nashik: '#CFFAFE' };
-                const icons = { Amravati: Leaf, Nagpur: Sprout, Aurangabad: Wheat, Konkan: Building2, Pune: ShieldCheck, Nashik: Landmark };
-
-                const result = Object.entries(divMap).map(([name, data]) => {
-                    const util = data.totalAllocated > 0
-                        ? ((data.totalSpent / data.totalAllocated) * 100)
-                        : 0;
-
-                    const leak = Math.max(0, 100 - util - (Math.random() * 5 + 92 - (100 - util)));
-
-                    const mappedSchemes = Object.entries(data.schemes).map(([sn, sv]) => ({
-                        name: sn,
-                        sanctioned: sv.sanctioned,
-                        spent: sv.spent,
-                        utilization: sv.sanctioned > 0 ? ((sv.spent / sv.sanctioned) * 100) : 0,
-                    }));
-
-                    return {
-                        id: name.toLowerCase(),
-                        name: `${name} Division`,
-                        color: colors[name] || '#8B5CF6',
-                        colorLight: colorLights[name] || '#F3E8FF',
-                        icon: icons[name] || Landmark,
-                        totalAllocated: data.totalAllocated,
-                        totalSpent: data.totalSpent,
-                        utilization: parseFloat(util.toFixed(1)),
-                        leakage: parseFloat(Math.max(0, 100 - util).toFixed(1)),
-                        topCrop: data.topCrop || 'Mixed',
-                        districts: Array.from(data.districts),
-                        farmerCount: data.farmerCount,
-                        schemes: mappedSchemes.sort((a, b) => b.sanctioned - a.sanctioned).slice(0, 5),
+        try {
+            // Aggregate by division
+            const divMap = {};
+            filteredData.forEach((r) => {
+                const divName = r.divisionName.replace(' Division', '');
+                if (!divMap[divName]) {
+                    divMap[divName] = {
+                        totalAllocated: 0,
+                        totalSpent: 0,
+                        districts: new Set(),
+                        schemes: {},
+                        farmerCount: 0,
+                        topCrop: '',
                     };
-                });
+                }
 
-                setDivisions(result.length > 0 ? result : FALLBACK_DIVISIONS);
-                setIsLive(result.length > 0);
-                setLoading(false);
-            } catch (err) {
-                console.warn('Firebase fetch failed, using fallback:', err.message);
-                setDivisions(FALLBACK_DIVISIONS);
-                setIsLive(false);
-                setError(err.message);
-                setLoading(false);
-            }
+                divMap[divName].totalAllocated += r.allocated;
+                divMap[divName].totalSpent += r.spent;
+                if (r.district) divMap[divName].districts.add(r.district);
+
+                // Extract raw specific fields mapping to different schemes
+                if (r._raw) {
+                    if (r._raw.farmer_count) divMap[divName].farmerCount += r._raw.farmer_count;
+                    if (r._raw.crop) divMap[divName].topCrop = r._raw.crop;
+
+                    const schemeName = r._raw.scheme_name || (r._source === 'maharashtra_health_budget' ? 'NHM Govt Health' : 'General State Fund');
+                    if (!divMap[divName].schemes[schemeName]) {
+                        divMap[divName].schemes[schemeName] = { sanctioned: 0, spent: 0 };
+                    }
+                    divMap[divName].schemes[schemeName].sanctioned += r.allocated;
+                    divMap[divName].schemes[schemeName].spent += r.spent;
+                }
+            });
+
+            const colors = { Amravati: '#16A34A', Nagpur: '#F59E0B', Aurangabad: '#3B82F6', Konkan: '#8B5CF6', Pune: '#EC4899', Nashik: '#06B6D4' };
+            const colorLights = { Amravati: '#DCFCE7', Nagpur: '#FEF3C7', Aurangabad: '#DBEAFE', Konkan: '#F3E8FF', Pune: '#FCE7F3', Nashik: '#CFFAFE' };
+            const icons = { Amravati: Leaf, Nagpur: Sprout, Aurangabad: Wheat, Konkan: Building2, Pune: ShieldCheck, Nashik: Landmark };
+
+            const result = Object.entries(divMap).map(([name, data]) => {
+                const util = data.totalAllocated > 0
+                    ? ((data.totalSpent / data.totalAllocated) * 100)
+                    : 0;
+
+                const leak = Math.max(0, 100 - util - (Math.random() * 5 + 92 - (100 - util)));
+
+                const mappedSchemes = Object.entries(data.schemes).map(([sn, sv]) => ({
+                    name: sn,
+                    sanctioned: sv.sanctioned,
+                    spent: sv.spent,
+                    utilization: sv.sanctioned > 0 ? ((sv.spent / sv.sanctioned) * 100) : 0,
+                }));
+
+                return {
+                    id: name.toLowerCase(),
+                    name: `${name} Division`,
+                    color: colors[name] || '#8B5CF6',
+                    colorLight: colorLights[name] || '#F3E8FF',
+                    icon: icons[name] || Landmark,
+                    totalAllocated: data.totalAllocated,
+                    totalSpent: data.totalSpent,
+                    utilization: parseFloat(util.toFixed(1)),
+                    leakage: parseFloat(Math.max(0, 100 - util).toFixed(1)),
+                    topCrop: data.topCrop || 'Mixed',
+                    districts: Array.from(data.districts),
+                    farmerCount: data.farmerCount,
+                    schemes: mappedSchemes.sort((a, b) => b.sanctioned - a.sanctioned).slice(0, 5),
+                };
+            });
+
+            setDivisions(result.length > 0 ? result : FALLBACK_DIVISIONS);
+            setIsLive(dataSource === 'firebase');
+        } catch (err) {
+            console.warn('Firebase processing failed, using fallback:', err.message);
+            setDivisions(FALLBACK_DIVISIONS);
+            setIsLive(false);
+            setError(err.message);
         }
-
-        fetchData();
-    }, []);
+    }, [filteredData, contextLoading, dataSource]);
 
     const totals = useMemo(() => {
         const alloc = divisions.reduce((s, d) => s + d.totalAllocated, 0);
@@ -214,7 +205,7 @@ function useBudgetData() {
         return { alloc, spent, farmers, avgUtil: parseFloat(avgUtil.toFixed(1)) };
     }, [divisions]);
 
-    return { divisions, totals, loading, isLive, error };
+    return { divisions, totals, loading: contextLoading, isLive, error, currentYear: filters.fiscalYear || 'All Years' };
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -757,7 +748,7 @@ function SectorPipeline({ division, delay = 0 }) {
    ═══════════════════════════════════════════════════════════════ */
 
 export default function BudgetFlowVisualization() {
-    const { divisions, totals, loading, isLive, error } = useBudgetData();
+    const { divisions, totals, loading, isLive, error, currentYear } = useBudgetData();
 
     if (loading) return <LoadingSkeleton />;
 
@@ -786,7 +777,7 @@ export default function BudgetFlowVisualization() {
                             </h1>
                         </div>
                         <p className="text-sm text-slate-400 ml-[52px]">
-                            Maharashtra Agriculture • FY 2025-26 • Real-time fund flow
+                            Maharashtra Budget • {currentYear === 'All Years' ? 'All Years' : `FY ${currentYear}`} • Real-time fund flow
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -885,7 +876,7 @@ export default function BudgetFlowVisualization() {
                 className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-6 border-t border-slate-200/60 text-center relative z-10"
             >
                 <p className="text-[11px] text-slate-400">
-                    © {new Date().getFullYear()} ARTHRAKSHAK AI • Budget Flow Intelligence •
+                    © {new Date().getFullYear()} ARTHASHEtra AI • Budget Flow Intelligence •
                     Data:{' '}
                     <a
                         href="https://data.gov.in"

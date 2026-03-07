@@ -65,7 +65,41 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
 }
 
 export default function Header() {
-    const { filters, updateFilter, meta } = useFilterContext();
+    const { filteredData, filters, updateFilter, meta } = useFilterContext();
+
+    const handleExport = () => {
+        if (!filteredData || filteredData.length === 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        const headers = ["ID", "Fiscal Year", "Quarter", "Division", "District", "Department", "Allocated", "Released", "Spent", "Utilization", "Leakage Score"];
+        const rows = filteredData.map(d => [
+            d.id,
+            d.fiscalYear,
+            d.quarter,
+            d.divisionName,
+            d.district,
+            d.departmentName,
+            d.allocated,
+            d.released,
+            d.spent,
+            d.utilization,
+            d.leakageScore
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(e => e.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `budget_data_export_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     const years = meta?.fiscalYears || [];
 
@@ -112,7 +146,7 @@ export default function Header() {
                 />
 
                 {/* Export */}
-                <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors">
+                <button onClick={handleExport} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors">
                     <Download size={14} />
                     Export Data
                 </button>

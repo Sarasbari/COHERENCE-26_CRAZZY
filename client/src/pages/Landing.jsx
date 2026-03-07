@@ -33,10 +33,9 @@ export default function Landing() {
             {/* Nav */}
             <nav className="flex items-center justify-between px-8 py-5 border-b border-[#E2E8F0] bg-white">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#1E3A8A] flex items-center justify-center font-bold text-white text-lg">
-                        B
+                    <div className="flex items-center justify-center text-white font-bold">
+                        <img src="/logo.png" alt="ARTHASHEtra Logo" className="h-8 max-w-full object-contain" />
                     </div>
-                    <span className="font-bold text-[#0F172A] text-xl">{APP_NAME}</span>
                 </div>
                 <button onClick={handleGetStarted} className="btn-primary flex items-center gap-2">
                     {user ? 'Go to Dashboard' : 'Sign In with Google'}

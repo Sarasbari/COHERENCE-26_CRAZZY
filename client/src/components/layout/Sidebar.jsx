@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, TrendingUp, AlertTriangle, BarChart2,
@@ -20,15 +20,15 @@ export default function Sidebar() {
     return (
         <aside className="w-60 h-screen bg-[#1E3A8A] flex flex-col fixed left-0 top-0 z-40">
             {/* Logo */}
-            <div className="px-5 py-6 flex items-center gap-3 border-b border-white/10">
-                <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center font-bold text-[#1E3A8A] text-sm flex-shrink-0">
-                    A
+            <Link to="/" className="px-5 py-6 flex items-center gap-3 border-b border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
+                <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
+                    <img src="/logo.png" alt="ARTHASHEtra Logo" className="w-full h-full object-contain" />
                 </div>
                 <div>
                     <h1 className="font-bold text-white text-sm leading-tight">{APP_NAME}</h1>
                     <p className="text-[11px] text-white/60 leading-tight">Maharashtra State</p>
                 </div>
-            </div>
+            </Link>
 
             {/* Nav Links */}
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
