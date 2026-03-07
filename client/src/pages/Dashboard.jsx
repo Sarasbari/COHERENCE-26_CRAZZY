@@ -27,7 +27,7 @@ function KPICard({ label, value, sub, subColor, icon: Icon, iconColor, progress,
                 <p className="text-sm text-[#64748B]">{label}</p>
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center`}
                     style={{ backgroundColor: `${iconColor}15` }}>
-                    <Icon size={18} style={{ color: iconColor }} />
+                    {Icon ? <Icon size={18} style={{ color: iconColor }} /> : null}
                 </div>
             </div>
             <p className="text-2xl font-bold text-[#0F172A] mb-1" style={subColor === '#F59E0B' ? { color: '#F59E0B' } : {}}>
@@ -75,7 +75,7 @@ export default function Dashboard() {
 
     // Derive area chart data (by fiscal year or quarter)
     const areaData = useMemo(() => {
-        if (!filteredData.length) return [];
+        if (!filteredData || !filteredData.length) return [];
         const yearMap = {};
         filteredData.forEach((r) => {
             const key = r.fiscalYear || 'Unknown';
@@ -84,12 +84,12 @@ export default function Dashboard() {
             yearMap[key].released += r.released || 0;
             yearMap[key].spent += r.spent || 0;
         });
-        return Object.values(yearMap).sort((a, b) => a.name.localeCompare(b.name));
+        return Object.values(yearMap).sort((a, b) => String(a.name).localeCompare(String(b.name)));
     }, [filteredData]);
 
     // Derive donut chart data (by department)
     const donutData = useMemo(() => {
-        if (!filteredData.length) return [];
+        if (!filteredData || !filteredData.length) return [];
         const deptAgg = aggregateByDepartment(filteredData);
         const colors = ['#DC2626', '#F59E0B', '#3B82F6', '#60A5FA', '#16A34A', '#8B5CF6', '#14B8A6', '#1E3A8A'];
         return Object.values(deptAgg).map((dept, i) => ({
@@ -101,7 +101,7 @@ export default function Dashboard() {
 
     // Derive district table data
     const districtData = useMemo(() => {
-        if (!filteredData.length) return [];
+        if (!filteredData || !filteredData.length) return [];
         const districtMap = {};
         filteredData.forEach((r) => {
             if (!r.district) return;
@@ -174,7 +174,7 @@ export default function Dashboard() {
                     Live from Firebase
                 </span>
                 <span className="text-xs text-[#94A3B8]">
-                    {allData.length} records • FY {filters.fiscalYear || 'All'}
+                    {allData?.length || 0} records • FY {filters?.fiscalYear || 'All'}
                 </span>
             </div>
 
@@ -183,7 +183,7 @@ export default function Dashboard() {
                 <KPICard
                     label="Total Budget"
                     value={kpis ? formatCrores(kpis.totalAllocated) : '—'}
-                    sub={`${allData.length} records tracked`}
+                    sub={`${allData?.length || 0} records tracked`}
                     subColor="#16A34A"
                     icon={Wallet}
                     iconColor="#1E3A8A"
