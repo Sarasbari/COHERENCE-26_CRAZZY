@@ -11,6 +11,7 @@ import Chat from '../pages/Chat';
 import Reports from '../pages/Reports';
 import Leaderboard from '../pages/Leaderboard';
 import BudgetFlowVisualization from '../pages/BudgetFlowVisualization';
+import DistrictComparisonMode from '../pages/DistrictComparisonMode';
 
 function AuthenticatedRoutes() {
     return (
@@ -32,6 +33,7 @@ function AuthenticatedRoutes() {
                     <Route path="/dashboard/reports" element={<Reports />} />
                     <Route path="/dashboard/leaderboard" element={<Leaderboard />} />
                     <Route path="/dashboard/budget-flow" element={<BudgetFlowVisualization />} />
+                    <Route path="/dashboard/comparison" element={<DistrictComparisonMode />} />
                 </Route>
 
                 {/* Catch-all redirect */}

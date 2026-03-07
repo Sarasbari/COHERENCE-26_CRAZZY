@@ -2,7 +2,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, TrendingUp, AlertTriangle, BarChart2,
-    ArrowLeftRight, Droplets
+    ArrowLeftRight, Droplets, GitCompareArrows
 } from 'lucide-react';
 import { APP_NAME } from '../../config/constants';
 import logoUrl from '../../assets/logo.png';
@@ -13,6 +13,7 @@ const navItems = [
     { path: '/dashboard/budget-flow', icon: Droplets, label: 'Budget Flow' },
     { path: '/dashboard/anomalies', icon: AlertTriangle, label: 'Leakage Detection' },
     { path: '/dashboard/predict', icon: BarChart2, label: 'Department Analysis' },
+    { path: '/dashboard/comparison', icon: GitCompareArrows, label: 'Compare Intel' },
 ];
 
 export default function Sidebar() {
