@@ -9,17 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
-    "firebase": "^10.14.0",
-    "recharts": "^2.13.0",
+    "d3-array": "^3.2.4",
     "d3-sankey": "^0.12.3",
     "d3-shape": "^3.2.0",
-    "d3-array": "^3.2.4",
+    "firebase": "^10.14.0",
     "framer-motion": "^11.11.0",
+    "html2pdf.js": "^0.14.0",
     "lucide-react": "^0.454.0",
-    "react-markdown": "^9.0.1"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.28.0",
+    "recharts": "^2.13.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

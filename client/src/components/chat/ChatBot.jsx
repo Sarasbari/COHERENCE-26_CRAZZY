@@ -74,9 +74,9 @@ export default function ChatBot() {
     }, [messages, streamingText, isOpen]);
 
     const suggestions = [
-        "Which district has highest leakage?",
-        "Show Nagpur fund utilization",
-        "Forecast risk for Q1 FY25"
+        "What is the cotton yield per hectare in Amravati?",
+        "Which district has the highest forest cover in Maharashtra?",
+        "Show health budget utilization for Amravati"
     ];
 
     const handleSend = async (textOvr) => {

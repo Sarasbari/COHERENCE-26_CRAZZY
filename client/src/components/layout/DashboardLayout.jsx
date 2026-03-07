@@ -9,7 +9,7 @@ export default function DashboardLayout() {
             <Sidebar />
             <div className="flex-1 ml-60 flex flex-col">
                 <Header />
-                <main className="flex-1 p-6 overflow-y-auto relative">
+                <main id="dashboard-pdf-content" className="flex-1 p-6 overflow-y-auto relative bg-[#F8FAFC]">
                     <Outlet />
                 </main>
             </div>

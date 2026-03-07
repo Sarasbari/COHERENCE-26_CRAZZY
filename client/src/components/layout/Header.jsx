@@ -1,7 +1,8 @@
-import { Bell, ChevronDown, Download, User, Check } from 'lucide-react';
+import { Bell, ChevronDown, Download, User, Check, FileText } from 'lucide-react';
 import { useFilterContext } from '../../context/FilterContext';
 import { useState, useRef, useEffect } from 'react';
 import { DIVISIONS } from '../../config/constants';
+import html2pdf from 'html2pdf.js';
 
 // Custom Dropdown Component
 function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" }) {
@@ -67,7 +68,7 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
 export default function Header() {
     const { filteredData, filters, updateFilter, meta } = useFilterContext();
 
-    const handleExport = () => {
+    const handleExportCSV = () => {
         if (!filteredData || filteredData.length === 0) {
             alert("No data available to export.");
             return;
@@ -99,6 +100,36 @@ export default function Header() {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    };
+
+    const handleExportPDF = () => {
+        const element = document.getElementById('dashboard-pdf-content');
+        if (!element) {
+            alert('No dashboard content available to export.');
+            return;
+        }
+
+        const opt = {
+            margin: 0.3,
+            filename: `dashboard_analysis_report_${new Date().toISOString().slice(0, 10)}.pdf`,
+            image: { type: 'jpeg', quality: 1.0 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#F8FAFC',
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight,
+                logging: false
+            },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+        };
+
+        const originalOverflow = element.style.overflow;
+        element.style.overflow = 'visible';
+
+        html2pdf().from(element).set(opt).save().then(() => {
+            element.style.overflow = originalOverflow;
+        });
     };
 
     const years = meta?.fiscalYears || [];
@@ -145,11 +176,17 @@ export default function Header() {
                     placeholder="All Years"
                 />
 
-                {/* Export */}
-                <button onClick={handleExport} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors">
-                    <Download size={14} />
-                    Export Data
-                </button>
+                {/* Export Buttons */}
+                <div className="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
+                    <button onClick={handleExportCSV} className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors border-r border-white/20" title="Export to CSV">
+                        <Download size={14} />
+                        CSV
+                    </button>
+                    <button onClick={handleExportPDF} className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors" title="Export to PDF">
+                        <FileText size={14} />
+                        PDF
+                    </button>
+                </div>
             </div>
         </header>
     );
