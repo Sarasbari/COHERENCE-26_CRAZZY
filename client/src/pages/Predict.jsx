@@ -37,8 +37,8 @@ export default function Predict() {
     return (
         <div className="space-y-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h2 className="text-2xl font-bold text-[#0F172A] mb-1">Predictions & Optimization</h2>
-                <p className="text-[#64748B] text-sm">Fund lapse forecasting and reallocation recommendations</p>
+                <h2 className="text-xl md:text-2xl font-bold text-[#0F172A] mb-1">Predictions & Optimization</h2>
+                <p className="text-[#64748B] text-xs md:text-sm">Fund lapse forecasting and reallocation recommendations</p>
             </motion.div>
 
             {/* Fund Lapse Risk Gauges */}
@@ -108,7 +108,7 @@ export default function Predict() {
                                     <tr key={i} className="border-b border-[#F1F5F9]">
                                         <td className="py-3 px-4 text-[#0F172A]">{pred.departmentName}</td>
                                         <td className="py-3 px-4 text-[#64748B]">{pred.divisionName}</td>
-                                        <td className="py-3 px-4 text-[#64748B]">FY {pred.fiscalYear}</td>
+                                        <td className="py-3 px-4 text-[#64748B] hidden md:table-cell">FY {pred.fiscalYear}</td>
                                         <td className="py-3 px-4 text-right text-severity-high font-medium">{pred.projectedUtilization.toFixed(1)}%</td>
                                         <td className="py-3 px-4 text-right text-severity-critical font-medium">{formatCurrency(pred.lapseAmount)}</td>
                                     </tr>
@@ -121,7 +121,7 @@ export default function Predict() {
 
             {/* AI Reallocation */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
                     <div>
                         <h3 className="section-title flex items-center gap-2">
                             <Sliders size={18} className="text-[#1E3A8A]" />
@@ -129,7 +129,7 @@ export default function Predict() {
                         </h3>
                         <p className="section-subtitle">AI-powered fund reallocation recommendations</p>
                     </div>
-                    <button onClick={handleGetAdvice} disabled={adviceLoading} className="btn-primary flex items-center gap-2">
+                    <button onClick={handleGetAdvice} disabled={adviceLoading} className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center">
                         {adviceLoading ? <Loader2 size={16} className="animate-spin" /> : <Brain size={16} />}
                         Get AI Recommendation
                     </button>

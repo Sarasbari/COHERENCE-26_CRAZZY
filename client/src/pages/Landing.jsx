@@ -37,7 +37,7 @@ export default function Landing() {
     return (
         <div className="min-h-screen bg-[#F8FAFC] overflow-hidden">
             {/* Nav */}
-            <nav className="flex items-center justify-between px-8 py-5 border-b border-[#E2E8F0] bg-white">
+            <nav className="flex items-center justify-between px-4 py-3 md:px-8 md:py-5 border-b border-[#E2E8F0] bg-white">
                 <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition">
                     <img src={logoUrl} alt="Logo" className="w-10 h-10 rounded-xl bg-white p-0.5 object-contain shadow-sm border border-[#E2E8F0]" />
                     <span className="font-bold text-[#0F172A] text-xl">{APP_NAME}</span>
@@ -50,22 +50,23 @@ export default function Landing() {
                             <button onClick={logout} className="text-sm text-red-500 font-medium hover:text-red-700 transition">Logout</button>
                         </div>
                     ) : (
-                        <button onClick={handleLogin} className="flex items-center gap-2 bg-white border border-[#E2E8F0] rounded-lg px-4 py-2 text-sm font-medium text-[#0F172A] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B82F6] transition shadow-sm">
+                        <button onClick={handleLogin} className="flex items-center gap-2 bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-[#0F172A] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B82F6] transition shadow-sm min-h-[44px]">
                             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" className="w-5 h-5" />
-                            Sign in with Google
+                            <span className="hidden sm:inline">Sign in with Google</span>
+                            <span className="sm:hidden">Sign in</span>
                         </button>
                     )}
                 </div>
             </nav>
 
             {/* Hero — Two-column: Text Left + Globe Right */}
-            <section className="relative px-8 py-16 md:py-24">
+            <section className="relative px-4 py-10 md:px-8 md:py-16 lg:py-24">
                 {/* Ambient glow — left side */}
                 <div className="absolute top-0 left-0 w-[600px] h-[500px] bg-gradient-radial from-[#3B82F6]/5 via-transparent to-transparent blur-3xl pointer-events-none" />
                 {/* Ambient glow — right side for globe */}
                 <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-radial from-[#1E3A8A]/5 via-transparent to-transparent blur-3xl pointer-events-none" />
 
-                <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
+                <div className="relative z-10 max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-8 lg:gap-8">
                     {/* Left — Content */}
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
@@ -80,7 +81,7 @@ export default function Landing() {
                         </div>
 
                         {/* Headline */}
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#0F172A] leading-tight">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#0F172A] leading-tight">
                             Track. Detect.{' '}
                             <br className="hidden sm:block" />
                             <span className="bg-gradient-to-r from-[#1E3A8A] via-[#3B82F6] to-[#60A5FA] bg-clip-text text-transparent">
@@ -96,7 +97,7 @@ export default function Landing() {
                         </p>
 
                         {/* Stats row */}
-                        <div className="mt-8 flex flex-wrap items-center gap-6 text-sm">
+                        <div className="mt-6 md:mt-8 flex flex-wrap items-center gap-4 md:gap-6 text-sm">
                             {stats.map((stat, i) => (
                                 <div key={i} className="flex items-center gap-2">
                                     <span className="text-xl font-bold gradient-text">{stat.value}</span>
@@ -109,7 +110,7 @@ export default function Landing() {
                         </div>
 
                         {/* CTA buttons */}
-                        <div className="mt-10 flex items-center gap-4">
+                        <div className="mt-8 md:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
                             <button onClick={handleGetStarted} className="btn-primary flex items-center gap-2 text-lg px-8 py-4">
                                 Launch Dashboard
                                 <ArrowRight size={20} />
@@ -125,7 +126,7 @@ export default function Landing() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3, duration: 1 }}
-                        className="flex-1 flex items-center justify-center min-h-[360px] md:min-h-[460px]"
+                        className="flex-1 flex items-center justify-center min-h-[280px] md:min-h-[360px] lg:min-h-[460px] max-w-[320px] md:max-w-none mx-auto"
                     >
                         <InteractiveGlobe
                             size={460}
@@ -143,20 +144,20 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
-                className="relative z-10 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 glass-card px-10 py-6 -mt-4 mb-12"
+                className="relative z-10 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 glass-card px-6 py-4 md:px-10 md:py-6 -mt-4 mb-12 mx-4 md:mx-auto"
             >
                 {stats.map((stat, i) => (
                     <div key={i} className="text-center">
-                        <p className="text-3xl font-bold gradient-text">{stat.value}</p>
+                        <p className="text-2xl md:text-3xl font-bold gradient-text">{stat.value}</p>
                         <p className="text-sm text-[#94A3B8] mt-1">{stat.label}</p>
                     </div>
                 ))}
             </motion.div>
 
             {/* Features */}
-            <section id="features" className="px-8 py-20">
+            <section id="features" className="px-4 py-12 md:px-8 md:py-20">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-bold text-[#0F172A]">Intelligent Budget Monitoring</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold text-[#0F172A]">Intelligent Budget Monitoring</h2>
                     <p className="text-[#64748B] mt-3">Powered by multi-layer anomaly detection and AI analysis</p>
                 </div>
 
@@ -181,7 +182,7 @@ export default function Landing() {
             </section>
 
             {/* Footer */}
-            <footer className="border-t border-[#E2E8F0] px-8 py-8 text-center text-[#94A3B8] text-sm">
+            <footer className="border-t border-[#E2E8F0] px-4 py-6 md:px-8 md:py-8 text-center text-[#94A3B8] text-xs md:text-sm">
                 <p>© 2026 {APP_NAME} — National Budget Flow Intelligence Platform | Built for COHERENCE Hackathon</p>
             </footer>
         </div>

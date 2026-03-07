@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Download, User, Check, FileText } from 'lucide-react';
+import { Bell, ChevronDown, Download, User, Check, FileText, Menu, SlidersHorizontal } from 'lucide-react';
 import { useFilterContext } from '../../context/FilterContext';
 import { useAuth } from '../../context/AuthContext';
 import { useState, useRef, useEffect } from 'react';
@@ -27,7 +27,7 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm text-white hover:bg-white/20 transition-colors focus:outline-none justify-between cursor-pointer`}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm text-white hover:bg-white/20 transition-colors focus:outline-none justify-between cursor-pointer min-h-[44px] md:min-h-0`}
                 style={{ minWidth }}
             >
                 <span className="truncate">{displayLabel}</span>
@@ -66,10 +66,11 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
     );
 }
 
-export default function Header() {
+export default function Header({ onMenuClick }) {
     const { filteredData, filters, updateFilter, meta } = useFilterContext();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const [filtersOpen, setFiltersOpen] = useState(false);
 
     const handleExportCSV = () => {
         if (!user) {
@@ -134,46 +135,95 @@ export default function Header() {
     const districtOptions = allDistricts.map(d => ({ value: d, label: d }));
 
     return (
-        <header className="h-16 bg-[#1E3A8A] border-b border-[#1E3A8A] flex items-center justify-between px-6 sticky top-0 z-30">
-            {/* Left: Title + Live Sync */}
-            <div className="flex items-center gap-4">
-                <h1 className="text-xl font-bold text-white">Dashboard Overview</h1>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-white/10">
-                    <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
-                    <span className="text-xs text-white font-medium">Live Sync</span>
-                </div>
-            </div>
-
-            {/* Right: Filters + Actions */}
-            <div className="flex items-center gap-3">
-                {/* Custom District Dropdown */}
-                <Dropdown
-                    value={filters.district}
-                    options={districtOptions}
-                    onChange={(val) => updateFilter('district', val)}
-                    placeholder="All Districts"
-                />
-
-                {/* Custom FY Dropdown */}
-                <Dropdown
-                    value={filters.fiscalYear}
-                    options={yearOptions}
-                    onChange={(val) => updateFilter('fiscalYear', val)}
-                    placeholder="All Years"
-                />
-
-                {/* Export Buttons */}
-                <div className="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
-                    <button onClick={handleExportCSV} className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors border-r border-white/20" title="Export to CSV">
-                        <Download size={14} />
-                        CSV
+        <>
+            <header className="h-14 md:h-16 bg-[#1E3A8A] border-b border-[#1E3A8A] flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+                {/* Left: Hamburger (mobile) + Title + Live Sync */}
+                <div className="flex items-center gap-3 md:gap-4">
+                    {/* Hamburger - mobile only */}
+                    <button
+                        onClick={onMenuClick}
+                        className="md:hidden p-2 -ml-2 text-white hover:bg-white/10 rounded-lg min-h-[44px] flex items-center justify-center"
+                        aria-label="Open menu"
+                    >
+                        <Menu size={22} />
                     </button>
-                    <button onClick={handleExportPDF} className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors" title="Export to PDF">
-                        <FileText size={14} />
-                        PDF
-                    </button>
+                    <h1 className="text-base md:text-xl font-bold text-white hidden sm:block">Dashboard Overview</h1>
+                    <div className="inline-flex items-center gap-2 px-2.5 md:px-3 py-1 rounded-full border border-white/20 bg-white/10">
+                        <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
+                        <span className="text-xs text-white font-medium">Live Sync</span>
+                    </div>
                 </div>
-            </div>
-        </header>
+
+                {/* Right: Filters + Actions — hidden on mobile, shown on md+ */}
+                <div className="hidden md:flex items-center gap-3">
+                    {/* Custom District Dropdown */}
+                    <Dropdown
+                        value={filters.district}
+                        options={districtOptions}
+                        onChange={(val) => updateFilter('district', val)}
+                        placeholder="All Districts"
+                    />
+
+                    {/* Custom FY Dropdown */}
+                    <Dropdown
+                        value={filters.fiscalYear}
+                        options={yearOptions}
+                        onChange={(val) => updateFilter('fiscalYear', val)}
+                        placeholder="All Years"
+                    />
+
+                    {/* Export Buttons */}
+                    <div className="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
+                        <button onClick={handleExportCSV} className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors border-r border-white/20" title="Export to CSV">
+                            <Download size={14} />
+                            CSV
+                        </button>
+                        <button onClick={handleExportPDF} className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors" title="Export to PDF">
+                            <FileText size={14} />
+                            PDF
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile filter toggle button */}
+                <button
+                    onClick={() => setFiltersOpen(!filtersOpen)}
+                    className="md:hidden p-2 text-white hover:bg-white/10 rounded-lg min-h-[44px] flex items-center justify-center"
+                    aria-label="Toggle filters"
+                >
+                    <SlidersHorizontal size={20} />
+                </button>
+            </header>
+
+            {/* Mobile collapsible filter bar */}
+            {filtersOpen && (
+                <div className="md:hidden flex flex-wrap gap-2 px-4 py-3 bg-[#1E3A8A]/95 border-b border-white/10">
+                    <Dropdown
+                        value={filters.district}
+                        options={districtOptions}
+                        onChange={(val) => updateFilter('district', val)}
+                        placeholder="All Districts"
+                        minWidth="130px"
+                    />
+                    <Dropdown
+                        value={filters.fiscalYear}
+                        options={yearOptions}
+                        onChange={(val) => updateFilter('fiscalYear', val)}
+                        placeholder="All Years"
+                        minWidth="110px"
+                    />
+                    <div className="flex items-center bg-white/10 border border-white/20 rounded-lg overflow-hidden">
+                        <button onClick={handleExportCSV} className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors border-r border-white/20 min-h-[44px]" title="Export to CSV">
+                            <Download size={14} />
+                            CSV
+                        </button>
+                        <button onClick={handleExportPDF} className="flex items-center gap-2 px-3 py-1.5 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors min-h-[44px]" title="Export to PDF">
+                            <FileText size={14} />
+                            PDF
+                        </button>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { DIVISIONS, FISCAL_YEARS } from '../config/constants';
 import { useFilterContext } from '../context/FilterContext';
 
@@ -163,10 +164,11 @@ function DeptBar({ name, pct, delay = 0 }) {
   const color = pct >= 80 ? C.green : pct >= 65 ? C.amber : C.red;
   return (
     <div style={{ marginBottom: 10 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: C.muted, marginBottom: 3, fontFamily: "'DM Sans', sans-serif" }}>
-        <span className="truncate max-w-[140px]">{name}</span><span style={{ fontWeight: 600, color }}>{pct}%</span>
+      <div className="flex justify-between items-end mb-1 md:mb-1.5">
+        <span className="text-[12px] md:text-[13px] font-[600] text-[#0F172A] truncate pr-2">{name}</span>
+        <span className="text-[12px] md:text-[13px] font-[700] text-[#64748B] shrink-0">{pct}%</span>
       </div>
-      <div style={{ height: 7, borderRadius: 4, background: '#E2E8F0', overflow: 'hidden' }}>
+      <div className="h-1.5 w-full bg-[#E2E8F0] rounded-full overflow-hidden">
         <div style={{ height: '100%', width: `${w}%`, background: color, borderRadius: 4, transition: 'width 1s cubic-bezier(.4,0,.2,1)' }} />
       </div>
     </div>
@@ -191,11 +193,7 @@ function MetricRow({ label, value, icon, color, pulse }) {
 /* ── Panel ── */
 function Panel({ data, accentColor, animKey }) {
   return (
-    <div key={animKey} style={{
-      flex: 1, background: C.card, borderRadius: 16, border: `1px solid ${C.border}`,
-      boxShadow: '0 1px 3px rgba(0,0,0,0.04)', overflow: 'hidden',
-      animation: 'fadeSlideIn 0.6s ease-out both',
-    }}>
+    <div key={animKey} className="bg-white rounded-xl md:rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden h-full flex flex-col relative w-full border-t-4" style={{ borderTopColor: accentColor }}>
       {/* Header */}
       <div style={{
         background: accentColor, padding: '14px 20px', display: 'flex',
@@ -214,15 +212,49 @@ function Panel({ data, accentColor, animKey }) {
         </div>
       </div>
 
-      <div style={{ padding: '20px' }}>
+      <div className="p-4 md:p-6 pb-4">
+        <div className="flex justify-between items-start mb-4 md:mb-6">
+          <div>
+            <div className="text-[10px] md:text-[11px] font-[700] text-[#64748B] uppercase tracking-[1px] font-['DM_Sans'] mb-1">
+              {data.district} • FY {data.year}
+            </div>
+            <div className="text-[20px] md:text-[24px] font-[800] text-[#0F172A] leading-tight flex items-center gap-2">
+              <Counter value={data.allocated} prefix="₹ " suffix=" Cr" />
+            </div>
+            <div className="text-[12px] md:text-[13px] text-[#64748B] mt-1 pr-4 line-clamp-2 md:line-clamp-none">
+              {data.insight}
+            </div>
+          </div>
+          <div className="w-10 h-10 md:w-[48px] md:h-[48px] rounded-xl flex items-center justify-center shrink-0" style={{ background: `${accentColor}10`, color: accentColor }}>
+            <span className="text-[20px] md:text-[24px]">💰</span>
+          </div>
+        </div>
+
         {/* Ring Gauge */}
         <RingGauge pct={data.utilPct} />
 
         {/* Metrics */}
-        <div style={{ marginTop: 16 }}>
-          <MetricRow label="Total Allocated" value={data.allocated} icon="💰" />
-          <MetricRow label="Funds Spent" value={data.spent} icon="📊" color={C.brightBlue} />
-          <MetricRow label="Unspent/Leakage" value={data.leakage} icon="🚨" color={C.red} pulse={data.leakage > 0} />
+        <div className="mt-4 md:mt-6 mb-2 md:mb-4">
+          <div className="flex items-end justify-between mb-2">
+            <div>
+              <div className="text-[11px] font-[600] text-[#64748B] font-['DM_Sans'] uppercase">Utilisation</div>
+              <div className="text-[16px] md:text-[20px] font-[700] text-[#0F172A] mt-0.5">{data.utilPct}%</div>
+            </div>
+            <div className="text-right">
+              <div className="text-[11px] font-[600] text-[#64748B] font-['DM_Sans'] uppercase">Available</div>
+              <div className="text-[13px] md:text-[15px] font-[700] text-[#16A34A] mt-0.5">{data.available} Cr</div>
+            </div>
+          </div>
+
+          <div className="h-2 w-full bg-[#E2E8F0] rounded-full overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: accentColor }}
+              initial={{ width: 0 }}
+              animate={{ width: `${data.utilPct}%` }}
+              transition={{ duration: 1, ease: "easeOut" }}
+            />
+          </div>
         </div>
 
         {/* Department Bars */}
@@ -235,7 +267,7 @@ function Panel({ data, accentColor, animKey }) {
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: 'flex', justifyItems: 'center', justifyContent: 'space-around', marginTop: 16, padding: '12px 0', borderTop: '1px solid #F1F5F9' }}>
+        <div className="flex justify-around items-center mt-4 md:mt-6 pt-3 md:pt-4 border-t border-[#F1F5F9] flex-wrap gap-2 md:gap-0">
           {[
             { label: 'Farmers', value: data.farmers, icon: '👨‍🌾' },
             { label: 'Schemes', value: data.schemes, icon: '📋' },
@@ -321,13 +353,13 @@ function DeltaColumn({ left, right }) {
 /* ── Custom Select ── */
 function Select({ value, options, onChange, label }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%' }}>
       <label style={{ fontSize: 11, color: C.muted, fontWeight: 600, fontFamily: "'DM Sans', sans-serif", textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)} style={{
         padding: '8px 14px', borderRadius: 10, border: `1px solid ${C.border}`,
         background: C.card, color: C.text, fontSize: 13, fontWeight: 600,
         fontFamily: "'DM Sans', sans-serif", outline: 'none', cursor: 'pointer',
-        minWidth: 160, appearance: 'auto',
+        width: '100%', minWidth: '120px', appearance: 'auto', minHeight: '44px'
       }}>
         {options.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -398,15 +430,13 @@ export default function DistrictComparisonMode() {
         paddingBottom: '20px'
       }}>
         {/* ── Page Title ── */}
-        <div style={{ marginBottom: 20 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text, margin: 0 }}>Comparison Intelligence</h1>
-          <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Side-by-side budget analysis across districts and fiscal years using Firebase data</p>
+        <div className="mb-5 px-1 md:px-0">
+          <h1 className="text-xl md:text-2xl font-[800] text-[#0F172A] m-0">Comparison Intelligence</h1>
+          <p className="text-xs md:text-[13px] text-[#64748B] mt-1">Side-by-side budget analysis across districts and fiscal years using Firebase data</p>
         </div>
 
         {/* ── Mode Pill Switcher ── */}
-        <div style={{
-          display: 'inline-flex', background: '#E2E8F0', borderRadius: 12, padding: 3, marginBottom: 20,
-        }}>
+        <div className="inline-flex bg-[#E2E8F0] rounded-xl p-[3px] mb-5 mx-1 md:mx-0 overflow-x-auto max-w-full">
           {[
             { key: 'district', label: '🏛️ District vs District' },
             { key: 'year', label: '📅 Year over Year' },
@@ -425,45 +455,93 @@ export default function DistrictComparisonMode() {
         </div>
 
         {/* ── Selector Bar ── */}
-        <div style={{
-          background: C.card, borderRadius: 14, border: `1px solid ${C.border}`,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.04)', padding: '16px 24px',
-          display: 'flex', alignItems: 'flex-end', gap: 16, flexWrap: 'wrap', marginBottom: 24,
-        }}>
+        <div className="bg-white rounded-xl md:rounded-2xl border border-[#E2E8F0] shadow-sm p-4 md:p-6 flex flex-col md:flex-row md:items-end gap-3 md:gap-4 mb-6 mx-1 md:mx-0">
           {mode === 'district' ? (
             <>
-              <Select label="Left District" value={leftDistrict} options={ALL_DISTRICTS} onChange={setLeftDistrict} />
-              <div style={{ fontSize: 22, color: C.muted, paddingBottom: 6 }}>⇄</div>
-              <Select label="Right District" value={rightDistrict} options={ALL_DISTRICTS} onChange={setRightDistrict} />
-              <Select label="Fiscal Year" value={fixedYear} options={YEARS} onChange={setFixedYear} />
+              <div className="w-full md:w-auto"><Select label="Left District" value={leftDistrict} options={ALL_DISTRICTS} onChange={setLeftDistrict} /></div>
+              <div className="hidden md:block text-[22px] text-[#64748B] pb-[6px]">⇄</div>
+              <div className="w-full md:w-auto"><Select label="Right District" value={rightDistrict} options={ALL_DISTRICTS} onChange={setRightDistrict} /></div>
+              <div className="w-full md:w-auto"><Select label="Fiscal Year" value={fixedYear} options={YEARS} onChange={setFixedYear} /></div>
             </>
           ) : (
             <>
-              <Select label="District" value={fixedDistrict} options={ALL_DISTRICTS} onChange={setFixedDistrict} />
-              <Select label="Year A" value={leftYear} options={YEARS} onChange={setLeftYear} />
-              <div style={{ fontSize: 22, color: C.muted, paddingBottom: 6 }}>⇄</div>
-              <Select label="Year B" value={rightYear} options={YEARS} onChange={setRightYear} />
+              <div className="w-full md:w-auto"><Select label="District" value={fixedDistrict} options={ALL_DISTRICTS} onChange={setFixedDistrict} /></div>
+              <div className="hidden md:block text-[22px] text-[#64748B] pb-[6px]">⇄</div>
+              <div className="w-full md:w-auto"><Select label="Year A" value={leftYear} options={YEARS} onChange={setLeftYear} /></div>
+              <div className="w-full md:w-auto"><Select label="Year B" value={rightYear} options={YEARS} onChange={setRightYear} /></div>
             </>
           )}
 
-          <button onClick={handleCompare} style={{
-            display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', borderRadius: 10,
-            background: C.govBlue, color: '#fff', border: 'none', fontWeight: 700, fontSize: 13,
-            fontFamily: "'DM Sans', sans-serif", cursor: 'pointer',
-            transition: 'background 0.2s', marginLeft: 'auto',
-          }}
-            onMouseEnter={e => e.currentTarget.style.background = C.brightBlue}
-            onMouseLeave={e => e.currentTarget.style.background = C.govBlue}
-          >
+          <button onClick={handleCompare} className="flex items-center justify-center gap-2 py-2.5 px-6 rounded-lg md:rounded-xl bg-[#1E3A8A] text-white border-0 font-[700] text-[13px] font-['DM_Sans'] cursor-pointer transition-colors hover:bg-[#3B82F6] md:ml-auto w-full md:w-auto mt-2 md:mt-0 shadow-sm min-h-[44px]">
             ⚡ Compare Now
           </button>
         </div>
 
         {/* ── Comparison Panels ── */}
-        <div style={{ display: 'flex', gap: 0, alignItems: 'stretch' }}>
-          <Panel data={leftData} accentColor={C.govBlue} animKey={`left-${compareKey}`} />
-          <DeltaColumn left={leftData} right={rightData} />
-          <Panel data={rightData} accentColor={C.brightBlue} animKey={`right-${compareKey}`} />
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-0 items-stretch mx-1 md:mx-0">
+          <div className="flex-1 w-full lg:w-auto min-w-0"><Panel data={leftData} accentColor={C.govBlue} animKey={`left-${compareKey}`} /></div>
+
+          {/* Delta Column - Hidden on mobile, shown as column on desktop */}
+          <div className="hidden lg:flex w-[110px] flex-col items-center justify-center gap-2.5 pt-[60px]">
+            <div className="text-[12px] font-[700] text-[#64748B] uppercase tracking-[1px] font-['DM_Sans'] mb-1">Δ Delta</div>
+
+            {[
+              { label: 'Allocation', l: leftData.allocated, r: rightData.allocated, unit: ' Cr', higherBetter: true },
+              { label: 'Utilisation', l: leftData.utilPct, r: rightData.utilPct, unit: '%', higherBetter: true },
+              { label: 'Unspent/Leakage', l: leftData.leakage, r: rightData.leakage, unit: ' Cr', higherBetter: false },
+              { label: 'Farmers', l: leftData.farmers, r: rightData.farmers, unit: '', higherBetter: true },
+            ].map(d => {
+              const diff = d.r - d.l;
+              const absDiff = Math.abs(diff);
+              const better = d.higherBetter ? diff > 0 : diff < 0;
+              const neutral = diff === 0;
+              return (
+                <div key={d.label} className="bg-white border border-[#E2E8F0] rounded-[10px] p-2 px-2.5 w-full text-center shadow-sm">
+                  <div className="text-[10px] text-[#64748B] font-['DM_Sans']">{d.label}</div>
+                  <div className={`text-[14px] font-[700] font-['DM_Sans'] ${neutral ? 'text-[#64748B]' : better ? 'text-[#16A34A]' : 'text-[#DC2626]'}`}>
+                    {neutral ? '—' : `${better ? '▲' : '▼'} ${d.label === 'Farmers' ? absDiff.toLocaleString('en-IN') : absDiff}${d.unit}`}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Winner Badge Desktop */}
+            <div className={`mt-2 py-1.5 px-3 rounded-full text-[11px] font-[700] font-['DM_Sans'] 
+                ${(() => {
+                const overallLeft = [
+                  { label: 'Allocation', l: leftData.allocated, r: rightData.allocated, unit: ' Cr', higherBetter: true },
+                  { label: 'Utilisation', l: leftData.utilPct, r: rightData.utilPct, unit: '%', higherBetter: true },
+                  { label: 'Unspent/Leakage', l: leftData.leakage, r: rightData.leakage, unit: ' Cr', higherBetter: false },
+                  { label: 'Farmers', l: leftData.farmers, r: rightData.farmers, unit: '', higherBetter: true },
+                ].filter(d => d.higherBetter ? d.l > d.r : d.l < d.r).length;
+                const overallRight = [
+                  { label: 'Allocation', l: leftData.allocated, r: rightData.allocated, unit: ' Cr', higherBetter: true },
+                  { label: 'Utilisation', l: leftData.utilPct, r: rightData.utilPct, unit: '%', higherBetter: true },
+                  { label: 'Unspent/Leakage', l: leftData.leakage, r: rightData.leakage, unit: ' Cr', higherBetter: false },
+                  { label: 'Farmers', l: leftData.farmers, r: rightData.farmers, unit: '', higherBetter: true },
+                ].filter(d => d.higherBetter ? d.r > d.l : d.r < d.l).length;
+
+                return overallLeft === overallRight ? 'bg-[#F1F5F9] text-[#64748B]' : (overallLeft > overallRight ? 'bg-[#1E3A8A]/15 text-[#16A34A]' : 'bg-[#3B82F6]/15 text-[#16A34A]');
+              })()}`}>
+              {(() => {
+                const overallLeft = [
+                  { label: 'Allocation', l: leftData.allocated, r: rightData.allocated, unit: ' Cr', higherBetter: true },
+                  { label: 'Utilisation', l: leftData.utilPct, r: rightData.utilPct, unit: '%', higherBetter: true },
+                  { label: 'Unspent/Leakage', l: leftData.leakage, r: rightData.leakage, unit: ' Cr', higherBetter: false },
+                  { label: 'Farmers', l: leftData.farmers, r: rightData.farmers, unit: '', higherBetter: true },
+                ].filter(d => d.higherBetter ? d.l > d.r : d.l < d.r).length;
+                const overallRight = [
+                  { label: 'Allocation', l: leftData.allocated, r: rightData.allocated, unit: ' Cr', higherBetter: true },
+                  { label: 'Utilisation', l: leftData.utilPct, r: rightData.utilPct, unit: '%', higherBetter: true },
+                  { label: 'Unspent/Leakage', l: leftData.leakage, r: rightData.leakage, unit: ' Cr', higherBetter: false },
+                  { label: 'Farmers', l: leftData.farmers, r: rightData.farmers, unit: '', higherBetter: true },
+                ].filter(d => d.higherBetter ? d.r > d.l : d.r < d.l).length;
+                return overallLeft === overallRight ? 'TIE' : overallLeft > overallRight ? '← Better' : 'Better →';
+              })()}
+            </div>
+          </div>
+
+          <div className="flex-1 w-full lg:w-auto min-w-0"><Panel data={rightData} accentColor={C.brightBlue} animKey={`right-${compareKey}`} /></div>
         </div>
 
         {/* ── Footer ── */}

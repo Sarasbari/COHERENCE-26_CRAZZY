@@ -49,29 +49,29 @@ export default function Anomalies() {
     return (
         <div className="space-y-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h2 className="text-2xl font-bold text-[#0F172A] mb-1">Anomaly Detection</h2>
-                <p className="text-[#64748B] text-sm">Flagged issues from rule-based and statistical analysis</p>
+                <h2 className="text-xl md:text-2xl font-bold text-[#0F172A] mb-1">Anomaly Detection</h2>
+                <p className="text-[#64748B] text-xs md:text-sm">Flagged issues from rule-based and statistical analysis</p>
             </motion.div>
 
             {/* Severity Summary */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 {['critical', 'high', 'medium', 'low'].map((sev) => (
                     <motion.button
                         key={sev}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         onClick={() => setSeverityFilter(severityFilter === sev ? 'all' : sev)}
-                        className={`glass-card p-4 text-center cursor-pointer transition-all ${severityFilter === sev ? 'ring-2 ring-[#3B82F6]/50' : ''
+                        className={`glass-card p-3 md:p-4 text-center cursor-pointer transition-all ${severityFilter === sev ? 'ring-2 ring-[#3B82F6]/50' : ''
                             }`}
                     >
-                        <p className={`text-2xl font-bold text-severity-${sev}`}>{severityCounts[sev]}</p>
+                        <p className={`text-xl md:text-2xl font-bold text-severity-${sev}`}>{severityCounts[sev]}</p>
                         <p className="text-xs text-[#64748B] capitalize mt-1">{sev}</p>
                     </motion.button>
                 ))}
             </div>
 
             {/* Filter bar */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
                 <Filter size={16} className="text-[#64748B]" />
                 <select
                     value={typeFilter}
@@ -90,9 +90,9 @@ export default function Anomalies() {
             </div>
 
             {/* Anomaly List + Detail Panel */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className="flex flex-col lg:grid lg:grid-cols-5 gap-4 md:gap-6">
                 {/* List */}
-                <div className="lg:col-span-3 space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                <div className="lg:col-span-3 space-y-3 max-h-[400px] lg:max-h-[600px] overflow-y-auto pr-0 lg:pr-2">
                     {anomalies.map((anomaly, i) => (
                         <AnomalyCard
                             key={anomaly.id}

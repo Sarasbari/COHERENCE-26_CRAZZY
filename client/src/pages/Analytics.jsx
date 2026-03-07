@@ -58,30 +58,34 @@ export default function Analytics() {
     return (
         <div className="space-y-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <h2 className="text-2xl font-bold text-[#0F172A] mb-1">Budget Analytics</h2>
-                <p className="text-[#64748B] text-sm">Deep-dive into department and division spending patterns</p>
+                <h2 className="text-xl md:text-2xl font-bold text-[#0F172A] mb-1">Budget Analytics</h2>
+                <p className="text-[#64748B] text-xs md:text-sm">Deep-dive into department and division spending patterns</p>
             </motion.div>
 
             {/* Department Comparison */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-3 md:p-6">
                 <h3 className="section-title mb-1">Department-wise Allocation vs Spending</h3>
                 <p className="section-subtitle mb-4">Compare budget performance across 8 departments</p>
-                <ResponsiveContainer width="100%" height={350}>
-                    <BarChart data={deptData} margin={{ top: 10, right: 30, left: 10, bottom: 40 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
-                        <XAxis dataKey="name" tick={{ fill: '#64748B', fontSize: 11 }} angle={-30} textAnchor="end" height={60} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: '#64748B', fontSize: 11 }} tickFormatter={(v) => formatCurrency(v)} axisLine={false} tickLine={false} />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-                        <Legend wrapperStyle={{ color: '#64748B', fontSize: 12, paddingTop: '10px' }} iconType="circle" />
-                        <Bar dataKey="allocated" name="Allocated" fill="#1E3A8A" radius={[4, 4, 0, 0]} barSize={40} />
-                        <Bar dataKey="spent" name="Spent" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={40} />
-                    </BarChart>
-                </ResponsiveContainer>
+                <div className="overflow-x-auto -mx-1">
+                    <div className="min-w-[500px]">
+                        <ResponsiveContainer width="100%" height={350}>
+                            <BarChart data={deptData} margin={{ top: 10, right: 30, left: 10, bottom: 40 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                                <XAxis dataKey="name" tick={{ fill: '#64748B', fontSize: 11 }} angle={-30} textAnchor="end" height={60} axisLine={false} tickLine={false} />
+                                <YAxis tick={{ fill: '#64748B', fontSize: 11 }} tickFormatter={(v) => formatCurrency(v)} axisLine={false} tickLine={false} />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                                <Legend wrapperStyle={{ color: '#64748B', fontSize: 12, paddingTop: '10px' }} iconType="circle" />
+                                <Bar dataKey="allocated" name="Allocated" fill="#1E3A8A" radius={[4, 4, 0, 0]} barSize={40} />
+                                <Bar dataKey="spent" name="Spent" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={40} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Yearly Trends */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-6">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-3 md:p-6">
                     <h3 className="section-title mb-1">Yearly Spending Trend</h3>
                     <p className="section-subtitle mb-4">5-year allocation vs spending trajectory</p>
                     <ResponsiveContainer width="100%" height={300}>
@@ -98,7 +102,7 @@ export default function Analytics() {
                 </motion.div>
 
                 {/* Division Comparison */}
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-3 md:p-6">
                     <h3 className="section-title mb-1">Division Comparison</h3>
                     <p className="section-subtitle mb-4">Allocation and utilization by division</p>
                     <ResponsiveContainer width="100%" height={300}>
@@ -115,7 +119,7 @@ export default function Analytics() {
             </div>
 
             {/* Utilization Table */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-card p-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-card p-3 md:p-6">
                 <h3 className="section-title mb-4">Department Utilization Details</h3>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">

@@ -19,12 +19,15 @@ const navItems = [
     { path: '/dashboard/export', icon: Languages, label: 'Export Reports' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
     const location = useLocation();
     const { user, logout } = useAuth();
 
     return (
-        <aside className="w-60 h-screen bg-[#1E3A8A] flex flex-col fixed left-0 top-0 z-40">
+        <aside className={`fixed inset-y-0 left-0 z-50 w-60 bg-[#1E3A8A] flex flex-col transform transition-transform duration-300 ease-in-out
+            ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+            md:translate-x-0`}
+        >
             {/* Logo */}
             <Link to="/" className="px-5 py-6 flex items-center gap-3 border-b border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
                 <img src={logoUrl} alt="Logo" className="w-9 h-9 rounded-lg object-cover bg-white p-0.5 flex-shrink-0" />
@@ -44,7 +47,8 @@ export default function Sidebar() {
                         <NavLink
                             key={item.path}
                             to={item.path}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative
+                            onClick={() => onClose?.()}
+                            className={`flex items-center gap-3 px-3 py-3 md:py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative min-h-[44px]
                                 ${isActive
                                     ? 'bg-white/15 text-white border-l-2 border-white ml-0'
                                     : 'text-white/60 hover:text-white hover:bg-white/10 border-l-2 border-transparent'

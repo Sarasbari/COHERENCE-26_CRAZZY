@@ -179,7 +179,7 @@ export default function Dashboard() {
             </div>
 
             {/* KPI Cards Row */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                 <KPICard
                     label="Total Budget"
                     value={kpis ? formatCrores(kpis.totalAllocated) : '—'}
@@ -221,13 +221,13 @@ export default function Dashboard() {
             </div>
 
             {/* Row 2: Charts */}
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                 {/* Area Chart — 3 cols */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="col-span-3 bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-card"
+                    className="col-span-1 lg:col-span-3 bg-white border border-[#E2E8F0] rounded-xl p-3 md:p-5 shadow-card"
                 >
                     <div className="flex items-start justify-between mb-6">
                         <div>
@@ -286,7 +286,7 @@ export default function Dashboard() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="col-span-2 bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-card"
+                    className="col-span-1 lg:col-span-2 bg-white border border-[#E2E8F0] rounded-xl p-3 md:p-5 shadow-card"
                 >
                     <div className="flex items-start justify-between mb-4">
                         <h3 className="text-base font-semibold text-[#0F172A]">Allocation by Dept</h3>
@@ -348,11 +348,11 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-card"
+                className="bg-white border border-[#E2E8F0] rounded-xl p-3 md:p-5 shadow-card"
             >
-                <div className="flex items-start justify-between mb-6">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-3 mb-6">
                     <div>
-                        <h3 className="text-base font-semibold text-[#0F172A]">District Performance</h3>
+                        <h3 className="text-sm md:text-base font-semibold text-[#0F172A]">District Performance</h3>
                         <p className="text-xs text-[#64748B] mt-1">Utilization and risk analysis by district — live from Firestore</p>
                     </div>
                     <div className="relative">
@@ -360,64 +360,66 @@ export default function Dashboard() {
                         <input
                             type="text"
                             placeholder="Search districts..."
-                            className="pl-8 pr-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#3B82F6] w-56"
+                            className="pl-8 pr-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-sm text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#3B82F6] w-full sm:w-56"
                         />
                     </div>
                 </div>
 
                 {districtData.length > 0 ? (
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-[#E2E8F0]">
-                                <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">District</th>
-                                <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Allocated</th>
-                                <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Utilization</th>
-                                <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Avg Leakage</th>
-                                <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Risk Level</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {districtData.map((row, i) => {
-                                const barColor = row.utilization >= 70
-                                    ? '#16A34A'
-                                    : row.utilization >= 55
-                                        ? '#F59E0B'
-                                        : '#DC2626';
-                                return (
-                                    <tr key={i} className="border-b border-[#F1F5F9] hover:bg-[#F8FAFC] transition-colors">
-                                        <td className="py-3.5 px-2 text-sm text-[#0F172A] font-medium">{row.district}</td>
-                                        <td className="py-3.5 px-2 text-sm text-[#0F172A]">{formatCrores(row.allocated)}</td>
-                                        <td className="py-3.5 px-2">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-24 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
-                                                    <div
-                                                        className="h-full rounded-full transition-all"
-                                                        style={{ width: `${Math.min(100, row.utilization)}%`, backgroundColor: barColor }}
-                                                    />
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[600px]">
+                            <thead>
+                                <tr className="border-b border-[#E2E8F0]">
+                                    <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">District</th>
+                                    <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Allocated</th>
+                                    <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Utilization</th>
+                                    <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Avg Leakage</th>
+                                    <th className="text-left py-3 px-2 text-[10px] uppercase tracking-wider text-[#64748B] font-medium">Risk Level</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {districtData.map((row, i) => {
+                                    const barColor = row.utilization >= 70
+                                        ? '#16A34A'
+                                        : row.utilization >= 55
+                                            ? '#F59E0B'
+                                            : '#DC2626';
+                                    return (
+                                        <tr key={i} className="border-b border-[#F1F5F9] hover:bg-[#F8FAFC] transition-colors">
+                                            <td className="py-3.5 px-2 text-sm text-[#0F172A] font-medium">{row.district}</td>
+                                            <td className="py-3.5 px-2 text-sm text-[#0F172A]">{formatCrores(row.allocated)}</td>
+                                            <td className="py-3.5 px-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-24 h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full rounded-full transition-all"
+                                                            style={{ width: `${Math.min(100, row.utilization)}%`, backgroundColor: barColor }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-sm text-[#0F172A]">{row.utilization.toFixed(0)}%</span>
                                                 </div>
-                                                <span className="text-sm text-[#0F172A]">{row.utilization.toFixed(0)}%</span>
-                                            </div>
-                                        </td>
-                                        <td className="py-3.5 px-2 text-sm" style={{ color: row.avgLeakage > 15 ? '#DC2626' : '#64748B' }}>
-                                            {row.avgLeakage.toFixed(1)}
-                                        </td>
-                                        <td className="py-3.5 px-2">
-                                            <span
-                                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                                style={{
-                                                    backgroundColor: `${row.riskColor}15`,
-                                                    color: row.riskColor,
-                                                    border: `1px solid ${row.riskColor}25`,
-                                                }}
-                                            >
-                                                {row.risk}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                                            </td>
+                                            <td className="py-3.5 px-2 text-sm" style={{ color: row.avgLeakage > 15 ? '#DC2626' : '#64748B' }}>
+                                                {row.avgLeakage.toFixed(1)}
+                                            </td>
+                                            <td className="py-3.5 px-2">
+                                                <span
+                                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                                    style={{
+                                                        backgroundColor: `${row.riskColor}15`,
+                                                        color: row.riskColor,
+                                                        border: `1px solid ${row.riskColor}25`,
+                                                    }}
+                                                >
+                                                    {row.risk}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 ) : (
                     <div className="flex items-center justify-center h-32 text-[#94A3B8] text-sm">
                         No district data available for current filters
