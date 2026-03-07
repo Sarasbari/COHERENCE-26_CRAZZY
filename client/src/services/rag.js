@@ -1,5 +1,5 @@
 // File: src/services/rag.js
-import maharashtraHealthBudget from '../data/maharashtra_health_budget.json';
+import maharashtraHealthBudget from '../data/maharashtra_health_budget_data.json';
 import maharashtraAgriculture from '../data/maharashtra_agriculture.json';
 import maharashtraEnvironment from '../data/maharashtra_environment_real.json';
 

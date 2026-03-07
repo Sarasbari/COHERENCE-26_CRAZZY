@@ -8,6 +8,7 @@ const COLLECTIONS = {
     HEALTH_BUDGET: 'maharashtra_health_budget',
     AGRICULTURE: 'maharashtra_agriculture',
     AGRI_FINANCE: 'maharashtra_agri_finance',
+    ENVIRONMENT: 'maharashtra_environment_real',
     DISTRICT_SUMMARIES: 'district_summaries',
     DIVISION_SUMMARIES: 'division_summaries',
 };
@@ -45,6 +46,7 @@ function departmentFromSource(source) {
         case COLLECTIONS.HEALTH_BUDGET: return { id: 'public_health', name: 'Public Health' };
         case COLLECTIONS.AGRICULTURE: return { id: 'agriculture', name: 'Agriculture' };
         case COLLECTIONS.AGRI_FINANCE: return { id: 'agri_finance', name: 'Agri Finance' };
+        case COLLECTIONS.ENVIRONMENT: return { id: 'environment', name: 'Environment & Forest' };
         default: return { id: 'general', name: 'General' };
     }
 }
@@ -112,11 +114,24 @@ function normalizeRecord(doc, source) {
         allocated = (Number(doc.nhm_approved_budget_inr_cr) || 0) * 100;
         released = (Number(doc.nhm_funds_released_inr_cr) || 0) * 100;
         spent = (Number(doc.nhm_actual_expenditure_inr_cr) || 0) * 100;
+    } else if (source === COLLECTIONS.ENVIRONMENT) {
+        // To allow environmental metrics to be plotted, we trick 'allocated' and 'spent' 
+        // to equal forest_cover_sqkm, giving it volume in the visualizer without destroying 'spent' logic.
+        // We set 'utilization' directly from pct_geo_area next.
+        allocated = Number(doc.forest_cover_sqkm) || 0;
+        spent = allocated; 
+        released = allocated;
     }
 
     // Utilization: use firebase field if available, otherwise calculate
-    const utilization = (doc.utilization_percent || doc.utilization_rate_pct)
-        ? Number(doc.utilization_percent || doc.utilization_rate_pct)
+    let baseUtil = doc.utilization_percent || doc.utilization_rate_pct;
+    // For environment use forest cover pct as utilization
+    if (source === COLLECTIONS.ENVIRONMENT && doc.forest_cover_pct_geo_area) {
+        baseUtil = doc.forest_cover_pct_geo_area;
+    }
+
+    const utilization = (baseUtil)
+        ? Number(baseUtil)
         : (allocated > 0 ? ((spent / allocated) * 100) : 0);
 
     // Anomaly detection from Firebase fields
@@ -165,10 +180,11 @@ export async function fetchAllData() {
     console.log('[Firebase] Starting data fetch from all collections...');
     recordCounter = 0;
 
-    const [healthDocs, agriDocs, agriFinDocs, districtDocs, divisionDocs] = await Promise.all([
+    const [healthDocs, agriDocs, agriFinDocs, envDocs, districtDocs, divisionDocs] = await Promise.all([
         fetchCollection(COLLECTIONS.HEALTH_BUDGET),
         fetchCollection(COLLECTIONS.AGRICULTURE),
         fetchCollection(COLLECTIONS.AGRI_FINANCE),
+        fetchCollection(COLLECTIONS.ENVIRONMENT),
         fetchCollection(COLLECTIONS.DISTRICT_SUMMARIES),
         fetchCollection(COLLECTIONS.DIVISION_SUMMARIES),
     ]);
@@ -177,9 +193,10 @@ export async function fetchAllData() {
     const healthRecords = healthDocs.map((d) => normalizeRecord(d, COLLECTIONS.HEALTH_BUDGET));
     const agriRecords = agriDocs.map((d) => normalizeRecord(d, COLLECTIONS.AGRICULTURE));
     const agriFinRecords = agriFinDocs.map((d) => normalizeRecord(d, COLLECTIONS.AGRI_FINANCE));
+    const envRecords = envDocs.map((d) => normalizeRecord(d, COLLECTIONS.ENVIRONMENT));
 
     // Combine all normalized records
-    const allRecords = [...healthRecords, ...agriRecords, ...agriFinRecords];
+    const allRecords = [...healthRecords, ...agriRecords, ...agriFinRecords, ...envRecords];
 
     console.log(`[Firebase] Total normalized records: ${allRecords.length}`);
 

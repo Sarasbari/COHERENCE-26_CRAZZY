@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { DIVISIONS, FISCAL_YEARS } from '../config/constants';
+import { useFilterContext } from '../context/FilterContext';
 
 /* ───────────────────────── colour tokens ───────────────────────── */
 const C = {
@@ -8,37 +9,90 @@ const C = {
   green: '#16A34A', amber: '#F59E0B', red: '#DC2626',
 };
 
-/* ─────────── deterministic seed-based mock data generator ──────── */
-function hashCode(s) { let h = 0; for (let i = 0; i < s.length; i++) { h = (Math.imul(31, h) + s.charCodeAt(i)) | 0; } return Math.abs(h); }
-function seededRandom(seed) { let t = seed + 0x6D2B79F5; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+/* ──────────────── logic to aggregate from firebase ──────────────── */
+function aggregateDistrictData(allData, district, year) {
+  const defaultData = { district, year, allocated: 0, spent: 0, utilPct: 0, leakage: 0, farmers: 0, schemes: 0, anomalies: 0, departments: [], trend: [0, 0, 0, 0, 0, 0] };
 
-function generateData(district, year) {
-  const s = hashCode(`${district}-${year}`);
-  const r = (min, max) => { const v = seededRandom(s + min * 7 + max * 13); return min + v * (max - min); };
-  const allocated = Math.round(r(120, 480));
-  const utilPct = Math.round(r(55, 95));
-  const spent = Math.round(allocated * utilPct / 100);
-  const leakage = Math.round(r(2, allocated * 0.12));
-  const farmers = Math.round(r(25000, 95000));
-  const schemes = Math.round(r(4, 12));
-  const anomalies = Math.round(r(0, 6));
-  const departments = [
-    { name: 'Agriculture', pct: Math.round(r(50, 95)) },
-    { name: 'Rural Dev', pct: Math.round(r(45, 90)) },
-    { name: 'Infrastructure', pct: Math.round(r(40, 88)) },
-    { name: 'Education', pct: Math.round(r(55, 92)) },
-  ];
-  const trend = Array.from({ length: 6 }, (_, i) => Math.round(r(spent * 0.08, spent * 0.22)));
-  return { district, year, allocated, spent, utilPct, leakage, farmers, schemes, anomalies, departments, trend };
+  if (!allData || allData.length === 0) return defaultData;
+
+  // Find all records for this district across years
+  const distNameLower = district.toLowerCase();
+  const districtRecords = allData.filter(d => (d.district || '').toLowerCase() === distNameLower);
+
+  // Find current year records
+  const records = districtRecords.filter(d => d.fiscalYear === year);
+
+  if (records.length === 0) return defaultData;
+
+  let allocated = 0;
+  let spent = 0;
+  let anomalies = 0;
+  let farmers = 0;
+  const deptMap = {};
+
+  records.forEach(r => {
+    allocated += (Number(r.allocated) || 0);
+    spent += (Number(r.spent) || 0);
+    if (r.hasAnomaly) anomalies += 1;
+
+    // specific field extraction for farmers from raw JSON
+    if (r._raw && (r._raw.farmer_count || r._raw.Farmer_Count)) {
+      farmers += Number(r._raw.farmer_count || r._raw.Farmer_Count) || 0;
+    }
+
+    const deptName = r.departmentName || 'General';
+    if (!deptMap[deptName]) {
+      deptMap[deptName] = { allocated: 0, spent: 0 };
+    }
+    deptMap[deptName].allocated += (Number(r.allocated) || 0);
+    deptMap[deptName].spent += (Number(r.spent) || 0);
+  });
+
+  // Calculate percentages
+  const utilPct = allocated > 0 ? Math.round((spent / allocated) * 100) : 0;
+
+  // Calculate leakage: simply unspent funds for visual impact here or based on anomalies. 
+  // Let's use unspent allocation as basic leakage proxy if anomaly is present, otherwise a fraction.
+  const leakage = allocated - spent;
+
+  const departments = Object.keys(deptMap).map(k => ({
+    name: k,
+    pct: deptMap[k].allocated > 0 ? Math.round((deptMap[k].spent / deptMap[k].allocated) * 100) : 0
+  }));
+
+  // Create historical trend from past 6 years
+  const sortedYears = [...new Set(districtRecords.map(d => d.fiscalYear).filter(Boolean))].sort();
+  const trend = [];
+  const targetIdx = sortedYears.indexOf(year);
+
+  if (targetIdx !== -1) {
+    for (let i = Math.max(0, targetIdx - 5); i <= targetIdx; i++) {
+      const y = sortedYears[i];
+      const yRecs = districtRecords.filter(d => d.fiscalYear === y);
+      const ySpent = yRecs.reduce((sum, r) => sum + (Number(r.spent) || 0), 0);
+      trend.push(ySpent);
+    }
+  } else {
+    trend.push(spent);
+  }
+
+  // Pad if < 6 points to maintain sparkline shape
+  while (trend.length < 6) trend.unshift(trend[0] || 0);
+
+  return {
+    district,
+    year,
+    allocated: Math.round(allocated),
+    spent: Math.round(spent),
+    utilPct,
+    leakage: Math.max(0, Math.round(leakage)),
+    farmers,
+    schemes: records.length,
+    anomalies,
+    departments,
+    trend
+  };
 }
-
-/* ──────────────── all districts flat list ──────────────── */
-const ALL_DISTRICTS = Object.values(DIVISIONS).flatMap(d => d.districts).sort();
-const YEARS = FISCAL_YEARS.filter(y => {
-  const start = parseInt(y.split('-')[0]);
-  return start >= 2021 && start <= 2025;
-});
-if (YEARS.length === 0) FISCAL_YEARS.slice(-5).forEach(y => YEARS.push(y));
 
 /* ══════════════════ SUB-COMPONENTS ══════════════════ */
 
@@ -72,12 +126,12 @@ function RingGauge({ pct, size = 130 }) {
       <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#E2E8F0" strokeWidth={stroke} />
       <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={color} strokeWidth={stroke}
         strokeLinecap="round" strokeDasharray={circumference}
-        strokeDashoffset={circumference - (pct / 100) * circumference}
+        strokeDashoffset={circumference - (isNaN(pct) ? 0 : pct / 100) * circumference}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)' }} />
       <text x="50%" y="50%" textAnchor="middle" dy="0.35em"
         style={{ fontSize: 26, fontWeight: 800, fill: color, fontFamily: "'DM Sans', sans-serif" }}>
-        {pct}%
+        {pct || 0}%
       </text>
     </svg>
   );
@@ -110,7 +164,7 @@ function DeptBar({ name, pct, delay = 0 }) {
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: C.muted, marginBottom: 3, fontFamily: "'DM Sans', sans-serif" }}>
-        <span>{name}</span><span style={{ fontWeight: 600, color }}>{pct}%</span>
+        <span className="truncate max-w-[140px]">{name}</span><span style={{ fontWeight: 600, color }}>{pct}%</span>
       </div>
       <div style={{ height: 7, borderRadius: 4, background: '#E2E8F0', overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${w}%`, background: color, borderRadius: 4, transition: 'width 1s cubic-bezier(.4,0,.2,1)' }} />
@@ -127,7 +181,7 @@ function MetricRow({ label, value, icon, color, pulse }) {
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 11, color: C.muted, fontFamily: "'DM Sans', sans-serif" }}>{label}</div>
         <div style={{ fontSize: 18, fontWeight: 700, color: color || C.text, fontFamily: "'DM Sans', sans-serif", animation: pulse ? 'leakPulse 2s ease-in-out infinite' : 'none' }}>
-          <Counter value={value} prefix="₹ " suffix=" Cr" color={color} />
+          <Counter value={value} prefix="₹ " suffix=" L" color={color} />
         </div>
       </div>
     </div>
@@ -156,7 +210,7 @@ function Panel({ data, accentColor, animKey }) {
           color: '#fff', padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 700,
           fontFamily: "'DM Sans', sans-serif",
         }}>
-          {data.utilPct}% Utilised
+          {data.utilPct || 0}% Utilised
         </div>
       </div>
 
@@ -168,7 +222,7 @@ function Panel({ data, accentColor, animKey }) {
         <div style={{ marginTop: 16 }}>
           <MetricRow label="Total Allocated" value={data.allocated} icon="💰" />
           <MetricRow label="Funds Spent" value={data.spent} icon="📊" color={C.brightBlue} />
-          <MetricRow label="Detected Leakage" value={data.leakage} icon="🚨" color={C.red} pulse />
+          <MetricRow label="Unspent/Leakage" value={data.leakage} icon="🚨" color={C.red} pulse={data.leakage > 0} />
         </div>
 
         {/* Department Bars */}
@@ -177,14 +231,15 @@ function Panel({ data, accentColor, animKey }) {
             Department Utilisation
           </div>
           {data.departments.map((d, i) => <DeptBar key={d.name} name={d.name} pct={d.pct} delay={i * 120} />)}
+          {data.departments.length === 0 && <span className="text-xs text-gray-400">No departments found</span>}
         </div>
 
         {/* Stats Row */}
-        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 16, padding: '12px 0', borderTop: '1px solid #F1F5F9' }}>
+        <div style={{ display: 'flex', justifyItems: 'center', justifyContent: 'space-around', marginTop: 16, padding: '12px 0', borderTop: '1px solid #F1F5F9' }}>
           {[
             { label: 'Farmers', value: data.farmers, icon: '👨‍🌾' },
             { label: 'Schemes', value: data.schemes, icon: '📋' },
-            { label: 'Anomalies', value: data.anomalies, icon: '⚠️', warn: data.anomalies > 3 },
+            { label: 'Anomalies', value: data.anomalies, icon: '⚠️', warn: data.anomalies > 0 },
           ].map(s => (
             <div key={s.label} style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 18 }}>{s.icon}</div>
@@ -198,7 +253,7 @@ function Panel({ data, accentColor, animKey }) {
 
         {/* Sparkline */}
         <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 11, color: C.muted, textAlign: 'center', marginBottom: 2, fontFamily: "'DM Sans', sans-serif" }}>6-Month Spending Trend</div>
+          <div style={{ fontSize: 11, color: C.muted, textAlign: 'center', marginBottom: 2, fontFamily: "'DM Sans', sans-serif" }}>Historical Spending Trend</div>
           <Sparkline data={data.trend} color={accentColor} />
         </div>
       </div>
@@ -209,9 +264,9 @@ function Panel({ data, accentColor, animKey }) {
 /* ── Delta Column ── */
 function DeltaColumn({ left, right }) {
   const deltas = [
-    { label: 'Allocation', l: left.allocated, r: right.allocated, unit: ' Cr', higherBetter: true },
+    { label: 'Allocation', l: left.allocated, r: right.allocated, unit: ' L', higherBetter: true },
     { label: 'Utilisation', l: left.utilPct, r: right.utilPct, unit: '%', higherBetter: true },
-    { label: 'Leakage', l: left.leakage, r: right.leakage, unit: ' Cr', higherBetter: false },
+    { label: 'Unspent/Leakage', l: left.leakage, r: right.leakage, unit: ' L', higherBetter: false },
     { label: 'Farmers', l: left.farmers, r: right.farmers, unit: '', higherBetter: true },
   ];
 
@@ -282,24 +337,52 @@ function Select({ value, options, onChange, label }) {
 
 /* ══════════════════ MAIN COMPONENT ══════════════════ */
 export default function DistrictComparisonMode() {
+  const { allData, meta } = useFilterContext();
   const [mode, setMode] = useState('district'); // 'district' | 'year'
-  const [leftDistrict, setLeftDistrict] = useState(ALL_DISTRICTS[0]);
-  const [rightDistrict, setRightDistrict] = useState(ALL_DISTRICTS[1]);
+
+  // Extract districts and years from real meta, fallback to constants
+  const ALL_DISTRICTS = useMemo(() => {
+    return meta?.divisions?.flatMap(div => DIVISIONS[div]?.districts || [])?.sort() || Object.values(DIVISIONS).flatMap(d => d.districts).sort();
+  }, [meta]);
+
+  const YEARS = useMemo(() => {
+    return meta?.fiscalYears?.filter(y => !y.includes('All'))?.sort() || FISCAL_YEARS;
+  }, [meta]);
+
+  const [leftDistrict, setLeftDistrict] = useState(ALL_DISTRICTS[0] || 'Nagpur');
+  const [rightDistrict, setRightDistrict] = useState(ALL_DISTRICTS[1] || 'Amravati');
   const [leftYear, setLeftYear] = useState(YEARS[YEARS.length - 1] || '2024-25');
   const [rightYear, setRightYear] = useState(YEARS[YEARS.length - 2] || '2023-24');
   const [fixedYear, setFixedYear] = useState(YEARS[YEARS.length - 1] || '2024-25');
-  const [fixedDistrict, setFixedDistrict] = useState(ALL_DISTRICTS[0]);
+  const [fixedDistrict, setFixedDistrict] = useState(ALL_DISTRICTS[0] || 'Nagpur');
   const [compareKey, setCompareKey] = useState(0);
 
-  const leftData = mode === 'district'
-    ? generateData(leftDistrict, fixedYear)
-    : generateData(fixedDistrict, leftYear);
+  // Sync state if YEARS/DISTRICTS load async
+  useEffect(() => {
+    if (YEARS?.length > 0 && !YEARS.includes(leftYear)) {
+      setLeftYear(YEARS[YEARS.length - 1]);
+      setRightYear(YEARS[Math.max(0, YEARS.length - 2)]);
+      setFixedYear(YEARS[YEARS.length - 1]);
+    }
+  }, [YEARS]);
 
-  const rightData = mode === 'district'
-    ? generateData(rightDistrict, fixedYear)
-    : generateData(fixedDistrict, rightYear);
+  const leftData = useMemo(() => {
+    return mode === 'district'
+      ? aggregateDistrictData(allData, leftDistrict, fixedYear)
+      : aggregateDistrictData(allData, fixedDistrict, leftYear);
+  }, [mode, allData, leftDistrict, fixedDistrict, fixedYear, leftYear, compareKey]);
+
+  const rightData = useMemo(() => {
+    return mode === 'district'
+      ? aggregateDistrictData(allData, rightDistrict, fixedYear)
+      : aggregateDistrictData(allData, fixedDistrict, rightYear);
+  }, [mode, allData, rightDistrict, fixedDistrict, fixedYear, rightYear, compareKey]);
 
   const handleCompare = () => setCompareKey(k => k + 1);
+
+  if (!allData || allData.length === 0) {
+    return <div className="flex h-full w-full items-center justify-center text-gray-500">Loading Intelligence Data...</div>;
+  }
 
   return (
     <>
@@ -312,11 +395,12 @@ export default function DistrictComparisonMode() {
       <div style={{
         minHeight: '100%', background: C.bg, fontFamily: "'DM Sans', sans-serif",
         animation: 'fadeSlideIn 0.5s ease-out both',
+        paddingBottom: '20px'
       }}>
         {/* ── Page Title ── */}
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: C.text, margin: 0 }}>Comparison Intelligence</h1>
-          <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Side-by-side budget analysis across districts and fiscal years</p>
+          <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Side-by-side budget analysis across districts and fiscal years using Firebase data</p>
         </div>
 
         {/* ── Mode Pill Switcher ── */}
@@ -387,7 +471,7 @@ export default function DistrictComparisonMode() {
           textAlign: 'center', padding: '24px 0 12px', fontSize: 12, color: C.muted,
           fontFamily: "'DM Sans', sans-serif",
         }}>
-          ⚡ Live data from Firebase · data.gov.in · Last synced: {new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+          ⚡ Live data from Firebase ({allData.length} records) · Last synced: {new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
         </div>
       </div>
     </>
