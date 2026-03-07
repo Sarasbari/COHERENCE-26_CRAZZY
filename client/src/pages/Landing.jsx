@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { BarChart3, Shield, Zap, TrendingUp, Brain, ArrowRight } from 'lucide-react';
 import { APP_NAME, APP_TAGLINE } from '../config/constants';
 import InteractiveGlobe from '../components/ui/InteractiveGlobe';
+import logoUrl from '../assets/logo.png';
 
 const features = [
     { icon: BarChart3, title: 'Fund Flow Tracking', desc: 'Visualize budget allocation across divisions and departments with interactive Sankey diagrams' },
@@ -33,16 +34,10 @@ export default function Landing() {
             {/* Nav */}
             <nav className="flex items-center justify-between px-8 py-5 border-b border-[#E2E8F0] bg-white">
                 <div className="flex items-center gap-3">
-                    <div className="relative group cursor-pointer">
-                        <div className="absolute inset-0 bg-[#3B82F6]/20 rounded-xl blur-md transition-all duration-500 group-hover:bg-[#3B82F6]/40 group-hover:scale-110"></div>
-                        <img src="/logo.png" alt="Logo" className="w-11 h-11 relative z-10 shadow-sm rounded-xl object-contain transition-transform duration-500 group-hover:scale-105" />
-                    </div>
+                    <img src={logoUrl} alt="Logo" className="w-10 h-10 rounded-xl bg-white p-0.5 object-contain shadow-sm border border-[#E2E8F0]" />
                     <span className="font-bold text-[#0F172A] text-xl">{APP_NAME}</span>
                 </div>
-                <button onClick={handleGetStarted} className="btn-primary flex items-center gap-2">
-                    {user ? 'Go to Dashboard' : 'Sign In with Google'}
-                    <ArrowRight size={16} />
-                </button>
+
             </nav>
 
             {/* Hero — Two-column: Text Left + Globe Right */}

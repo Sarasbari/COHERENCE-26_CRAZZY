@@ -1,46 +1,50 @@
-// lib/chat.js
+// File: src/services/chat.js
 
-const RAG_SYSTEM_PROMPT = `
-You are BudgetFlow AI, an expert assistant for Maharashtra State budget intelligence.
-You ONLY answer based on the provided dataset context below.
-If the answer is not in the context, say "This data is not available in the current dataset."
-Always cite the specific district, department, or fiscal year from the data.
-Be concise, factual, and use ₹ for currency with Crore/Lakh notation.
-`;
+/**
+ * Service for communicating with Llama 3.3 70B via Groq API
+ */
+export async function sendMessage(messages, systemPrompt = "") {
+    const apiKey = import.meta.env.VITE_GROQ_API_KEY || import.meta.env.VITE_LLAMA_API_KEY;
+    
+    if (!apiKey || apiKey === 'YOUR_GROQ_API_KEY') {
+        throw new Error("Missing API Key in .env. Please set VITE_GROQ_API_KEY or VITE_LLAMA_API_KEY.");
+    }
 
-export async function sendMessage(userMessage, datasetContext, history) {
-  const apiKey = import.meta.env.VITE_LLAMA_API_KEY;
-  
-  if (!apiKey || apiKey === 'your_groq_api_key_here') {
-    throw new Error("Missing API Key. Please add VITE_LLAMA_API_KEY to your .env file.");
-  }
+    const payloadMessages = [];
+    if (systemPrompt) {
+        payloadMessages.push({ role: "system", content: systemPrompt });
+    }
+    
+    // Format messages for standard OpenAI-compatible completions API
+    payloadMessages.push(...messages.map(m => ({
+        role: m.role,
+        content: m.content
+    })));
 
-  // We are using Groq's endpoint for Llama 3.3 70B as an example
-  // You can swap this to Together AI or any other endpoint that supports OpenAI format
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        { role: "system", content: RAG_SYSTEM_PROMPT },
-        { role: "system", content: `DATASET CONTEXT:\n${datasetContext}` },
-        ...history,
-        { role: "user", content: userMessage }
-      ],
-      temperature: 0.2,  // low = factual, grounded responses
-      max_tokens: 1024,
-      stream: true  // enable streaming for real-time response
-    })
-  });
+    try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "llama-3.3-70b-versatile",
+                messages: payloadMessages,
+                temperature: 0.2, // Low temperature for grounded analytical responses
+                max_tokens: 1024,
+                stream: true // Enable streaming for real-time UI feel
+            })
+        });
 
-  if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`API Error: ${response.status} - ${errText}`);
-  }
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API Error ${response.status}: ${errorText}`);
+        }
 
-  return response;
+        return response.body.getReader();
+    } catch (error) {
+        console.error("Chat API Error:", error);
+        throw error;
+    }
 }

@@ -25,7 +25,7 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm text-white hover:bg-white/20 transition-colors focus:outline-none justify-between cursor-pointer"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-sm text-white hover:bg-white/20 transition-colors focus:outline-none justify-between cursor-pointer`}
                 style={{ minWidth }}
             >
                 <span className="truncate">{displayLabel}</span>
@@ -34,6 +34,7 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
 
             {isOpen && (
                 <div className="absolute top-full mt-2 left-0 w-56 bg-white border border-[#E2E8F0] shadow-xl rounded-lg py-1 z-50 max-h-64 overflow-y-auto">
+                    {/* Placeholder option (e.g. All Years) */}
                     <button
                         onClick={() => {
                             onChange(null);
@@ -44,7 +45,6 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
                         <span>{placeholder}</span>
                         {!value && <Check size={14} className="text-[#3B82F6]" />}
                     </button>
-
                     {options.map((opt) => (
                         <button
                             key={opt.value}
@@ -52,8 +52,7 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
                                 onChange(opt.value);
                                 setIsOpen(false);
                             }}
-                            className={`w-full text-left px-4 py-2 text-sm hover:bg-[#F1F5F9] transition-colors flex items-center justify-between ${value === opt.value ? 'text-[#0F172A] font-medium' : 'text-[#334155]'
-                                }`}
+                            className={`w-full text-left px-4 py-2 text-sm hover:bg-[#F1F5F9] transition-colors flex items-center justify-between ${value === opt.value ? 'text-[#0F172A] font-medium' : 'text-[#334155]'}`}
                         >
                             <span>{opt.label}</span>
                             {value === opt.value && <Check size={14} className="text-[#3B82F6]" />}
@@ -66,36 +65,56 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
 }
 
 export default function Header() {
+    const { filteredData, filters, updateFilter, meta } = useFilterContext();
 
-    const { filters, updateFilter, meta } = useFilterContext();
+    const handleExport = () => {
+        if (!filteredData || filteredData.length === 0) {
+            alert("No data available to export.");
+            return;
+        }
+
+        const headers = ["ID", "Fiscal Year", "Quarter", "Division", "District", "Department", "Allocated", "Released", "Spent", "Utilization", "Leakage Score"];
+        const rows = filteredData.map(d => [
+            d.id,
+            d.fiscalYear,
+            d.quarter,
+            d.divisionName,
+            d.district,
+            d.departmentName,
+            d.allocated,
+            d.released,
+            d.spent,
+            d.utilization,
+            d.leakageScore
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(e => e.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `budget_data_export_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     const years = meta?.fiscalYears || [];
 
+    // Format year options
     const yearOptions = years.map(y => ({
         value: y,
         label: y.startsWith('All') ? y : `FY ${y}`
     }));
 
+    // Extract all districts from DIVISIONS and sort them alphabetically
     const allDistricts = Object.values(DIVISIONS)
         .flatMap(div => div.districts)
         .sort((a, b) => a.localeCompare(b));
 
     const districtOptions = allDistricts.map(d => ({ value: d, label: d }));
-
-    const handleExport = () => {
-        const csvContent =
-            "data:text/csv;charset=utf-8,District,Allocated (Cr),Utilization (%),Flagged Amt (Cr),Risk Level\nPune,45.2,78,0.12,Low\nNagpur,32.15,42,0.84,High\nMumbai City,85.0,65,0.32,Medium\nAurangabad,39.4,39,0.039,High";
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "district_performance.csv");
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
 
     return (
         <header className="h-16 bg-[#1E3A8A] border-b border-[#1E3A8A] flex items-center justify-between px-6 sticky top-0 z-30">
@@ -110,7 +129,7 @@ export default function Header() {
             </div>
 
             <div className="flex items-center gap-3">
-
+                {/* Custom District Dropdown */}
                 <Dropdown
                     value={filters.district}
                     options={districtOptions}
@@ -118,6 +137,7 @@ export default function Header() {
                     placeholder="All Districts"
                 />
 
+                {/* Custom FY Dropdown */}
                 <Dropdown
                     value={filters.fiscalYear}
                     options={yearOptions}
@@ -125,23 +145,11 @@ export default function Header() {
                     placeholder="All Years"
                 />
 
-                <button
-                    onClick={handleExport}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-                >
+                {/* Export */}
+                <button onClick={handleExport} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/20 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors">
                     <Download size={14} />
                     Export Data
                 </button>
-
-                <button className="relative p-2 rounded-lg hover:bg-white/10 transition-colors">
-                    <Bell size={18} className="text-white/80" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#F59E0B] rounded-full" />
-                </button>
-
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    <User size={16} className="text-white" />
-                </div>
-
             </div>
         </header>
     );

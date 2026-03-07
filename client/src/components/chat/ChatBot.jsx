@@ -49,7 +49,7 @@ export default function ChatBot() {
                 setIsListening(false);
             };
         }
-    }, [isOpen]); // Re-attach if needed when panel opens
+    }, [isOpen]);
 
     const toggleListening = () => {
         if (isListening) {
@@ -60,15 +60,13 @@ export default function ChatBot() {
                 recognitionRef.current?.start();
                 setIsListening(true);
             } catch (e) {
-                // Ignore if it's already started accidentally
                 console.error(e);
             }
         }
     };
 
-    // Auto scroll to bottom when messages or streaming text changes
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
@@ -81,72 +79,77 @@ export default function ChatBot() {
         "Forecast risk for Q1 FY25"
     ];
 
-    const handleSend = async (text) => {
-        const query = text || input;
+    const handleSend = async (textOvr) => {
+        const query = textOvr || input;
         if (!query.trim()) return;
 
-        // 1. Add user message to chat UI immediately
-        const newMessages = [...messages, { role: 'user', content: query }];
-        setMessages(newMessages);
         setInput('');
+        setMessages(prev => [...prev, { role: 'user', content: query }]);
         setIsLoading(true);
-        setStreamingText('');
         setCurrentSource('');
 
         try {
-            // 2. RAG: Load relevant local data chunks based on the query
-            const { contextText, sourceFile } = await loadDatasetContext(query);
-            setCurrentSource(sourceFile);
+            // 1. RAG Simulation: Get matching context
+            const ragData = await loadDatasetContext(query);
+            setCurrentSource(ragData.sourceFile);
 
-            // 3. Send query + context to Llama API
-            const response = await sendMessage(query, contextText, newMessages.map(m => ({ role: m.role, content: m.content })));
+            const systemPrompt = `You are "BudgetFlow AI", an expert assistant analyzing the Maharashtra State Budget dataset.
+            The user is asking a question about the budget. Base your answer purely on the provided context below.
+            If the answer is not in the context, confidently say you don't have that information.
+            Keep your answer short, professional, and clear.
+            
+            CONTEXT DATA:
+            ${ragData.contextText}
+            `;
 
-            // 4. Handle HTTP Stream Response
-            const reader = response.body.getReader();
+            // 2. LLM Call: Stream the response
+            const newMessages = [...messages, { role: 'user', content: query }];
+            const reader = await sendMessage(newMessages, systemPrompt);
             const decoder = new TextDecoder("utf-8");
-            let done = false;
-            let fullAiResponse = "";
 
-            while (!done) {
-                const { value, done: doneReading } = await reader.read();
-                done = doneReading;
-                const chunkValue = decoder.decode(value);
+            let accumulatedMsg = '';
+            setStreamingText('');
 
-                // Parse SSE chunks. The Groq/OpenAI format sends `data: {...}` blocks.
-                const lines = chunkValue.split('\n').filter(line => line.trim() !== '');
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+
                 for (const line of lines) {
-                    if (line.replace(/^data: /, '').trim() === '[DONE]') {
-                        done = true;
-                        break;
-                    }
-                    if (line.startsWith('data:')) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.replace('data: ', '').trim();
+                        if (data === '[DONE]') break;
+
                         try {
-                            const parsed = JSON.parse(line.replace(/^data: /, ''));
-                            if (parsed.choices && parsed.choices[0].delta.content) {
-                                fullAiResponse += parsed.choices[0].delta.content;
-                                setStreamingText(fullAiResponse); // Update UI progressively
-                            }
+                            const parsed = JSON.parse(data);
+                            const token = parsed.choices[0]?.delta?.content || '';
+                            accumulatedMsg += token;
+                            setStreamingText(accumulatedMsg);
                         } catch (e) {
-                            console.error("Error parsing stream chunk", e);
+                            console.warn("Could not parse JSON stream chunk", e);
                         }
                     }
                 }
             }
 
-            // 5. Stream complete, commit to messages array
+            // 3. Commit the final streamed text to messages array
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: fullAiResponse,
-                source: sourceFile
+                content: accumulatedMsg,
+                source: ragData.sourceFile
             }]);
+
             setStreamingText('');
 
         } catch (error) {
-            console.error("Chat Error:", error);
+            console.error("Chat error:", error);
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: `**Error:** ${error.message || "Failed to connect to the AI model."}\n\n*Make sure you added the VITE_LLAMA_API_KEY in the .env file!*`
+                content: `Sorry, I encountered an error: ${error.message}. Is your API Key set in .env?`
             }]);
+            setStreamingText('');
         } finally {
             setIsLoading(false);
         }
@@ -168,7 +171,7 @@ export default function ChatBot() {
                     className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:scale-105 transition-transform flex-shrink-0"
                 >
                     {!isOpen && <span className="absolute inset-0 rounded-full border-2 border-orange-400 animate-ping opacity-75"></span>}
-                    {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+                    {isOpen ? <X size={24} /> : <Bot size={24} />}
                 </button>
             </div>
 
@@ -198,11 +201,11 @@ export default function ChatBot() {
                         {/* HEADER */}
                         <div className="p-4 border-b border-[#334155]/30 flex items-center justify-between bg-gradient-to-b from-[#1e1e28]/80 to-transparent">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-500 flex items-center justify-center font-bold font-mono">
-                                    B
+                                <div className="w-8 h-8 flex items-center justify-center">
+                                    <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                                 </div>
                                 <div>
-                                    <h2 className="text-white font-bold text-base leading-tight">BudgetFlow AI</h2>
+                                    <h2 className="text-white font-bold text-base leading-tight">ARTHASHEtra AI</h2>
                                     <p className="text-xs text-gray-400 leading-tight">Powered by Llama 3.3 70B</p>
                                 </div>
                             </div>
@@ -226,9 +229,9 @@ export default function ChatBot() {
                                         <Bot size={32} className="text-orange-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-white font-bold text-lg mb-1">Ask BudgetFlow AI</h3>
+                                        <h3 className="text-white font-bold text-lg mb-1">Ask ARTHASHEtra AI</h3>
                                         <p className="text-sm text-gray-400 max-w-[250px] mx-auto">
-                                            Answers grounded in Maharashtra FY 2023-24 budget data
+                                            Answers grounded in Maharashtra state budget data
                                         </p>
                                     </div>
                                     <div className="flex flex-col gap-2 w-full mt-4">
@@ -248,56 +251,61 @@ export default function ChatBot() {
                                 <>
                                     {messages.map((msg, i) => (
                                         <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-full`}>
-                                            <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                            <div className="flex items-end gap-2 max-w-[85%]">
                                                 {msg.role === 'assistant' && (
-                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-1">
-                                                        B
+                                                    <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0 mb-1">
+                                                        <span className="text-[10px] font-bold text-orange-500">B</span>
                                                     </div>
                                                 )}
 
-                                                <div className="flex flex-col gap-1">
-                                                    <div className={`p-3.5 text-[15px] leading-relaxed shadow-sm ${msg.role === 'user'
-                                                        ? 'bg-gradient-to-br from-orange-500 to-amber-500 text-white rounded-2xl rounded-tr-[4px]'
-                                                        : 'bg-[#1e1e28]/80 backdrop-blur-md text-gray-100 border border-[#334155]/40 rounded-2xl rounded-tl-[4px]'
-                                                        }`}>
-                                                        {msg.content}
-                                                    </div>
-
-                                                    {/* Source Tag for RAG */}
-                                                    {msg.role === 'assistant' && msg.source && (
-                                                        <div className="flex items-center gap-1 mt-1 ml-1">
-                                                            <span className="text-[10px] text-gray-500">📄 Source: {msg.source}</span>
-                                                        </div>
-                                                    )}
+                                                <div
+                                                    className={`px-4 py-3 rounded-2xl text-sm leading-relaxed
+                                                        ${msg.role === 'user'
+                                                            ? 'bg-gradient-to-r from-orange-600 to-amber-500 text-white rounded-br-sm'
+                                                            : 'bg-[#1e1e28] text-gray-200 border border-[#334155]/40 rounded-bl-sm'}
+                                                    `}
+                                                >
+                                                    {msg.content}
                                                 </div>
                                             </div>
+                                            {/* Source Pill */}
+                                            {msg.source && (
+                                                <div className="flex items-center gap-1 mt-2 ml-9">
+                                                    <div className="w-3 h-4 bg-gray-600 rounded-[2px] opacity-70 relative">
+                                                        <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-[#15151d] rounded-bl-[2px]"></div>
+                                                    </div>
+                                                    <span className="text-[10px] text-gray-500">Source: {msg.source}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
 
-                                    {/* STREAMING / LOADING INDICATOR */}
+                                    {/* STREAMING TEXT / LOADING INDICATOR */}
                                     {(isLoading || streamingText) && (
-                                        <div className="flex items-start gap-3 max-w-[85%]">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-1">
-                                                B
+                                        <div className="flex items-end gap-2 max-w-[85%]">
+                                            <div className="w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0 mb-1">
+                                                <span className="text-[10px] font-bold text-orange-500">B</span>
                                             </div>
-                                            <div className="flex flex-col gap-1 w-full">
-                                                <div className="p-3.5 text-[15px] leading-relaxed shadow-sm bg-[#1e1e28]/80 backdrop-blur-md text-gray-100 border border-[#334155]/40 rounded-2xl rounded-tl-[4px] min-h-[46px] min-w-[60px]">
-                                                    {streamingText ? (
-                                                        <span>{streamingText}<span className="inline-block w-1.5 h-3 ml-0.5 bg-orange-500 animate-pulse" /></span>
-                                                    ) : (
-                                                        <div className="flex items-center gap-1.5 h-full pt-1.5">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500/60 animate-bounce" style={{ animationDelay: '0ms' }} />
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500/60 animate-bounce" style={{ animationDelay: '300ms' }} />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {currentSource && !streamingText && (
-                                                    <div className="flex items-center gap-1 mt-1 ml-1">
-                                                        <span className="text-[10px] text-gray-500">📄 Searching: {currentSource}...</span>
+                                            <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-[#1e1e28] border border-[#334155]/40 text-sm text-gray-200 leading-relaxed min-w-[60px]">
+                                                {streamingText ? (
+                                                    streamingText
+                                                ) : (
+                                                    <div className="flex gap-1.5 py-1">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" />
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }} />
                                                     </div>
                                                 )}
                                             </div>
+                                        </div>
+                                    )}
+                                    {/* For source of a currently streaming message - wait till done usually, or append live if needed */}
+                                    {(isLoading || streamingText) && currentSource && !streamingText.endsWith("[DONE]") && (
+                                        <div className="flex items-center gap-1 mt-2 ml-9">
+                                            <div className="w-3 h-4 bg-gray-600 rounded-[2px] opacity-70 relative">
+                                                <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-[#15151d] rounded-bl-[2px]"></div>
+                                            </div>
+                                            <span className="text-[10px] text-gray-500">Source: {currentSource}</span>
                                         </div>
                                     )}
                                 </>
@@ -305,43 +313,43 @@ export default function ChatBot() {
                             <div ref={messagesEndRef} />
                         </div>
 
-                        {/* INPUT BAR */}
-                        <div className="p-4 bg-[#1e1e28]/80 backdrop-blur-xl border-t border-[#334155]/30">
-                            <div className="relative">
+                        {/* INPUT AREA */}
+                        <div className="p-4 bg-[#1a1a24] border-t border-[#334155]/40">
+                            <div className="relative flex items-center bg-[#15151d] border border-[#334155] rounded-2xl overflow-hidden focus-within:border-orange-500/50 transition-colors shadow-inner">
                                 <textarea
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     placeholder="Ask about Maharashtra budget data..."
-                                    disabled={isLoading}
-                                    className="w-full bg-[#15151d]/60 text-white border border-[#334155]/40 rounded-2xl pl-4 pr-24 py-3.5 text-[15px] focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30 resize-none disabled:opacity-50 placeholder-gray-500"
+                                    className="w-full bg-transparent text-sm text-white placeholder-gray-500 p-4 resize-none outline-none max-h-32 min-h-[56px] py-4"
                                     rows="1"
-                                    style={{ minHeight: '52px', maxHeight: '120px' }}
                                 />
 
                                 <div className="absolute right-2 bottom-2 flex items-center gap-1">
                                     <button
                                         onClick={toggleListening}
-                                        disabled={isLoading}
-                                        className={`p-2 rounded-xl transition-colors relative ${isListening ? 'text-red-500 bg-red-500/10' : 'text-gray-400 hover:text-white hover:bg-white/10'} disabled:opacity-30`}
-                                        title={isListening ? "Stop listening" : "Dictate message"}
+                                        title={isListening ? "Stop listening" : "Start listening"}
+                                        className={`p-2 rounded-xl transition-all ${isListening
+                                            ? 'text-red-400 bg-red-400/10 shadow-[0_0_15px_rgba(248,113,113,0.3)] animate-pulse'
+                                            : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                            }`}
                                     >
-                                        {isListening && <span className="absolute inset-0 rounded-xl bg-red-500/20 animate-ping"></span>}
-                                        {isListening ? <Mic size={18} /> : <MicOff size={18} />}
+                                        {isListening ? <MicOff size={18} /> : <Mic size={18} />}
                                     </button>
 
                                     <button
-                                        onClick={() => handleSend(input)}
+                                        onClick={() => handleSend()}
                                         disabled={!input.trim() || isLoading}
-                                        className="p-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white disabled:opacity-30 hover:shadow-lg hover:shadow-orange-500/20 transition-all flex items-center justify-center cursor-pointer"
+                                        className="p-2 rounded-xl bg-orange-600/20 text-orange-500 hover:bg-orange-500 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        <Send size={18} className={`${isLoading ? 'translate-x-1 opacity-50' : ''}`} />
+                                        <Send size={18} />
                                     </button>
                                 </div>
                             </div>
-                            <p className="text-center text-[10px] text-gray-500 mt-2 flex items-center justify-center gap-1">
-                                <span>🔒</span> Responses grounded in verified government data
-                            </p>
+                            <div className="mt-2 text-center flex items-center justify-center gap-1.5 text-[10px] text-gray-500">
+                                <span>🔒</span>
+                                <span>Responses grounded in verified government data</span>
+                            </div>
                         </div>
                     </motion.div>
                 )}

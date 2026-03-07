@@ -17,6 +17,21 @@ export const DIVISIONS = {
         districts: ['Aurangabad', 'Beed', 'Hingoli', 'Jalna', 'Latur', 'Nanded', 'Osmanabad', 'Parbhani'],
         color: '#60A5FA',
     },
+    pune: {
+        name: 'Pune Division',
+        districts: ['Pune', 'Satara', 'Sangli', 'Solapur', 'Kolhapur'],
+        color: '#8B5CF6',
+    },
+    nashik: {
+        name: 'Nashik Division',
+        districts: ['Nashik', 'Dhule', 'Jalgaon', 'Ahmednagar', 'Nandurbar'],
+        color: '#F59E0B',
+    },
+    konkan: {
+        name: 'Konkan Division',
+        districts: ['Mumbai City', 'Mumbai Suburban', 'Thane', 'Raigad', 'Ratnagiri', 'Sindhudurg', 'Palghar'],
+        color: '#14B8A6',
+    },
 };
 
 // ========================
@@ -27,6 +42,7 @@ export const DEPARTMENTS = [
     { id: 'public_health', name: 'Public Health', icon: '🏥', color: '#DC2626' },
     { id: 'pwd', name: 'Public Works (PWD)', icon: '🏗️', color: '#F59E0B' },
     { id: 'agriculture', name: 'Agriculture', icon: '🌾', color: '#16A34A' },
+    { id: 'agri_finance', name: 'Agri Finance', icon: '💰', color: '#8B5CF6' },
     { id: 'rural_dev', name: 'Rural Development', icon: '🏘️', color: '#1E3A8A' },
     { id: 'urban_dev', name: 'Urban Development', icon: '🏙️', color: '#60A5FA' },
     { id: 'water_supply', name: 'Water Supply & Sanitation', icon: '💧', color: '#3B82F6' },
@@ -37,6 +53,9 @@ export const DEPARTMENTS = [
 // FISCAL YEARS
 // ========================
 export const FISCAL_YEARS = [
+    '2018-19',
+    '2019-20',
+    '2020-21',
     '2021-22',
     '2022-23',
     '2023-24',
@@ -79,6 +98,6 @@ export const GROQ_CONFIG = {
 // ========================
 // APP CONFIG
 // ========================
-export const APP_NAME = 'ARTHRAKSHAK AI';
+export const APP_NAME = 'ARTHASHEtra AI';
 export const APP_TAGLINE = 'National Budget Intelligence & Leakage Detection';
 export const STATE_NAME = 'Maharashtra';
