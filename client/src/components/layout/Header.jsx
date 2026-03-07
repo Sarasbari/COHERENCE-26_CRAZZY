@@ -118,16 +118,16 @@ export default function Header() {
 
     return (
         <header className="h-16 bg-[#1E3A8A] border-b border-[#1E3A8A] flex items-center justify-between px-6 sticky top-0 z-30">
-            {/* Left: Title + Live Sync */}
+
             <div className="flex items-center gap-4">
                 <h1 className="text-xl font-bold text-white">Dashboard Overview</h1>
+
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-white/10">
                     <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
                     <span className="text-xs text-white font-medium">Live Sync</span>
                 </div>
             </div>
 
-            {/* Right: Filters + Actions */}
             <div className="flex items-center gap-3">
                 {/* Custom District Dropdown */}
                 <Dropdown

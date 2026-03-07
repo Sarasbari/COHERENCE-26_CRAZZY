@@ -22,7 +22,9 @@ export default function Sidebar() {
         <aside className="w-60 h-screen bg-[#1E3A8A] flex flex-col fixed left-0 top-0 z-40">
             {/* Logo */}
             <div className="px-5 py-6 flex items-center gap-3 border-b border-white/10">
-                <img src={logoUrl} alt="Logo" className="w-9 h-9 rounded-lg object-cover bg-white p-0.5 flex-shrink-0" />
+                <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center font-bold text-[#1E3A8A] text-sm flex-shrink-0">
+                    B
+                </div>
                 <div>
                     <h1 className="font-bold text-white text-sm leading-tight">{APP_NAME}</h1>
                     <p className="text-[11px] text-white/60 leading-tight">Maharashtra State</p>

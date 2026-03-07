@@ -164,7 +164,7 @@ export default function Landing() {
 
             {/* Footer */}
             <footer className="border-t border-[#E2E8F0] px-8 py-8 text-center text-[#94A3B8] text-sm">
-                <p>© 2026 {APP_NAME} — National Budget Flow Intelligence Platform | Built for COHERENCE Hackathon</p>
+                <p>© 2026 {APP_NAME} — National ARTHRAKSHAK Intelligence Platform | Built for COHERENCE Hackathon</p>
             </footer>
         </div>
     );
