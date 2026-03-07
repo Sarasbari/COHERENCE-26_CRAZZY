@@ -1,10 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
     Building2, ShieldCheck, Lock, Landmark,
     CheckCircle2, Link2, Leaf, Sprout, Wheat
 } from 'lucide-react';
 import { useFilterContext } from '../context/FilterContext';
+
+// Local JSON for sector breakdowns
+import agriData from '../data/maharashtra_agriculture.json';
+import healthData from '../data/maharashtra_health_budget_data.json';
+import envData from '../data/maharashtra_environment_real.json';
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTOR COLOURS
+   ═══════════════════════════════════════════════════════════════ */
+
+const SECTOR_COLORS = {
+    Healthcare: '#EF4444',
+    Agriculture: '#16A34A',
+    Environment: '#3B82F6',
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   HELPER – Compute per-division sector budgets from JSON
+   ═══════════════════════════════════════════════════════════════ */
+
+function computeSectorData() {
+    const result = {};
+
+    // ── Healthcare (NHM data) — latest FY per division ──
+    ['Amravati', 'Aurangabad', 'Nagpur'].forEach((div) => {
+        const recs = healthData.filter((r) => r.Division === div);
+        const latestFY = recs.length
+            ? recs.sort((a, b) => b.Financial_Year.localeCompare(a.Financial_Year))[0].Financial_Year
+            : '2022-23';
+        const latest = recs.filter((r) => r.Financial_Year === latestFY);
+        const approved = latest.reduce((s, r) => s + (r.NHM_Approved_Budget_INR_Cr || 0), 0);
+        const spent = latest.reduce((s, r) => s + (r.NHM_Actual_Expenditure_INR_Cr || 0), 0);
+        const avgUtil = latest.length
+            ? latest.reduce((s, r) => s + (r.Utilization_Rate_Pct || 0), 0) / latest.length
+            : 0;
+        if (!result[div.toLowerCase()]) result[div.toLowerCase()] = {};
+        result[div.toLowerCase()].Healthcare = {
+            amountCr: parseFloat(approved.toFixed(1)),
+            utilization: parseFloat(avgUtil.toFixed(0)),
+        };
+    });
+
+    // ── Agriculture — latest year per division ──
+    ['Amravati', 'Aurangabad', 'Nagpur'].forEach((div) => {
+        const recs = agriData.filter((r) => r.Division === div);
+        const latestYear = recs.length ? Math.max(...recs.map((r) => r.Year)) : 2025;
+        const latest = recs.filter((r) => r.Year === latestYear);
+        const alloc = latest.reduce((s, r) => s + (r.Budget_Allocated_Lakhs || 0), 0);
+        const util = latest.reduce((s, r) => s + (r.Budget_Utilized_Lakhs || 0), 0);
+        if (!result[div.toLowerCase()]) result[div.toLowerCase()] = {};
+        result[div.toLowerCase()].Agriculture = {
+            amountCr: parseFloat((alloc / 100).toFixed(1)),
+            utilization: alloc > 0 ? parseFloat(((util / alloc) * 100).toFixed(0)) : 0,
+        };
+    });
+
+    // ── Environment — forest cover budget proxy (use state totals, allocate proportionally by geo-area) ──
+    const districtData = envData.districtForestCover || [];
+    ['Amravati', 'Aurangabad', 'Nagpur'].forEach((div) => {
+        const recs = districtData.filter((r) => r.division === div);
+        // latest per district
+        const latest = {};
+        recs.forEach((r) => {
+            if (!latest[r.district] || r.data_year > latest[r.district].data_year) latest[r.district] = r;
+        });
+        const vals = Object.values(latest);
+        const totalForest = vals.reduce((s, r) => s + (r.forest_cover_sqkm || 0), 0);
+        const totalGeo = vals.reduce((s, r) => s + (r.geo_area_sqkm || 0), 0);
+        const coverPct = totalGeo > 0 ? ((totalForest / totalGeo) * 100) : 0;
+        // Use a rough budget proxy: ₹15 Cr per 1000 sq-km forest cover
+        const budgetProxy = parseFloat(((totalForest / 1000) * 15).toFixed(1));
+        if (!result[div.toLowerCase()]) result[div.toLowerCase()] = {};
+        result[div.toLowerCase()].Environment = {
+            amountCr: budgetProxy,
+            utilization: parseFloat(coverPct.toFixed(0)),
+            label: `${totalForest.toFixed(0)} km² forest`,
+        };
+    });
+
+    return result;
+}
 
 /* ═══════════════════════════════════════════════════════════════
    DATA – Base config for divisions
@@ -331,6 +412,244 @@ function TreasuryCard({ totalBudgetStr, fyDisplayString }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   COMPONENT – Mini Donut Ring (SVG)
+   ═══════════════════════════════════════════════════════════════ */
+
+function MiniDonut({ items, total, size = 48, strokeWidth = 5, activeSector, onHover, delay = 0 }) {
+    const r = (size - strokeWidth) / 2;
+    const circ = 2 * Math.PI * r;
+    let offset = 0;
+
+    return (
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
+            {/* Background track */}
+            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F1F5F9" strokeWidth={strokeWidth} />
+            {items.map((item, idx) => {
+                const pct = total > 0 ? item.amountCr / total : 0;
+                const dash = pct * circ;
+                const gap = circ - dash;
+                const currentOffset = offset;
+                offset += dash;
+                const isActive = activeSector === item.key;
+                return (
+                    <motion.circle
+                        key={item.key}
+                        cx={size / 2} cy={size / 2} r={r}
+                        fill="none"
+                        stroke={item.color}
+                        strokeWidth={isActive ? strokeWidth + 2 : strokeWidth}
+                        strokeDasharray={`${dash - 1.5} ${gap + 1.5}`}
+                        strokeDashoffset={-currentOffset}
+                        strokeLinecap="round"
+                        style={{
+                            filter: isActive ? `drop-shadow(0 0 4px ${item.color}80)` : 'none',
+                            cursor: 'pointer',
+                        }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: delay + 0.5 + idx * 0.15, duration: 0.6 }}
+                        onMouseEnter={() => onHover(item.key)}
+                        onMouseLeave={() => onHover(null)}
+                    />
+                );
+            })}
+        </svg>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENT – Sector Budget Visualization (inside Division Card)
+   ═══════════════════════════════════════════════════════════════ */
+
+function SectorBudgetViz({ sectors, divisionColor, delay = 0 }) {
+    const [activeSector, setActiveSector] = useState(null);
+
+    if (!sectors) return null;
+
+    const items = Object.entries(sectors).map(([key, data]) => ({
+        key,
+        color: SECTOR_COLORS[key] || '#94A3B8',
+        amountCr: data.amountCr || 0,
+        utilization: data.utilization || 0,
+        label: data.label || null,
+    }));
+
+    const total = items.reduce((s, i) => s + i.amountCr, 0);
+    if (total === 0) return null;
+
+    return (
+        <div className="mt-4 pt-4 border-t border-slate-100/80">
+            {/* Top row: Donut + Segmented Bar */}
+            <div className="flex items-center gap-3.5">
+                {/* Mini donut */}
+                <div className="relative flex-shrink-0">
+                    <MiniDonut
+                        items={items}
+                        total={total}
+                        size={52}
+                        strokeWidth={5}
+                        activeSector={activeSector}
+                        onHover={setActiveSector}
+                        delay={delay}
+                    />
+                    {/* Center label */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-[8px] font-black text-slate-500">
+                            {activeSector
+                                ? `${((items.find(i => i.key === activeSector)?.amountCr || 0) / total * 100).toFixed(0)}%`
+                                : '3'}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Segmented bar + Legend stacked */}
+                <div className="flex-1 min-w-0">
+                    {/* Segmented bar with gaps */}
+                    <div className="flex gap-[2px] w-full h-2.5 mb-2.5">
+                        {items.map((item, idx) => {
+                            const pct = (item.amountCr / total) * 100;
+                            const isActive = activeSector === item.key;
+                            return (
+                                <motion.div
+                                    key={item.key}
+                                    className="relative overflow-hidden cursor-pointer"
+                                    style={{
+                                        borderRadius: 4,
+                                        background: isActive
+                                            ? `linear-gradient(135deg, ${item.color}, ${item.color}CC)`
+                                            : `linear-gradient(135deg, ${item.color}DD, ${item.color}99)`,
+                                        boxShadow: isActive ? `0 2px 8px ${item.color}40` : 'none',
+                                    }}
+                                    initial={{ width: 0, height: 8 }}
+                                    animate={{
+                                        width: `${pct}%`,
+                                        height: isActive ? 12 : 10,
+                                    }}
+                                    transition={{
+                                        width: { delay: delay + 0.4 + idx * 0.12, duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                                        height: { duration: 0.2 },
+                                    }}
+                                    onMouseEnter={() => setActiveSector(item.key)}
+                                    onMouseLeave={() => setActiveSector(null)}
+                                >
+                                    {/* Animated shimmer on hover */}
+                                    {isActive && (
+                                        <motion.div
+                                            className="absolute inset-0"
+                                            style={{
+                                                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                                            }}
+                                            animate={{ x: ['-100%', '200%'] }}
+                                            transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 0.5 }}
+                                        />
+                                    )}
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Interactive legend items */}
+                    <div className="flex items-center gap-3">
+                        {items.map((item) => {
+                            const isActive = activeSector === item.key;
+                            const pct = ((item.amountCr / total) * 100).toFixed(0);
+                            return (
+                                <motion.div
+                                    key={item.key}
+                                    className="flex items-center gap-1 cursor-pointer select-none"
+                                    onMouseEnter={() => setActiveSector(item.key)}
+                                    onMouseLeave={() => setActiveSector(null)}
+                                    animate={{
+                                        scale: isActive ? 1.05 : 1,
+                                        opacity: activeSector && !isActive ? 0.4 : 1,
+                                    }}
+                                    transition={{ duration: 0.15 }}
+                                >
+                                    <motion.div
+                                        className="rounded-full"
+                                        style={{ backgroundColor: item.color }}
+                                        animate={{
+                                            width: isActive ? 8 : 5,
+                                            height: isActive ? 8 : 5,
+                                            boxShadow: isActive ? `0 0 6px ${item.color}60` : 'none',
+                                        }}
+                                        transition={{ duration: 0.15 }}
+                                    />
+                                    <span
+                                        className="text-[9px] font-bold transition-colors duration-150"
+                                        style={{ color: isActive ? item.color : '#94A3B8' }}
+                                    >
+                                        {item.key.slice(0, 4).toUpperCase()}
+                                    </span>
+                                    <span className="text-[9px] font-extrabold text-slate-600">
+                                        {pct}%
+                                    </span>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
+            {/* Expanded tooltip on hover */}
+            {activeSector && (() => {
+                const s = items.find((i) => i.key === activeSector);
+                if (!s) return null;
+                const pct = ((s.amountCr / total) * 100).toFixed(0);
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, y: 6, height: 0 }}
+                        animate={{ opacity: 1, y: 0, height: 'auto' }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-3 rounded-xl overflow-hidden"
+                        style={{
+                            background: `linear-gradient(135deg, ${s.color}08, ${s.color}03)`,
+                            border: `1px solid ${s.color}18`,
+                        }}
+                    >
+                        <div className="px-3 py-2.5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div
+                                    className="w-6 h-6 rounded-lg flex items-center justify-center"
+                                    style={{ backgroundColor: `${s.color}15` }}
+                                >
+                                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold" style={{ color: s.color }}>{s.key}</p>
+                                    <p className="text-[9px] text-slate-400">
+                                        {s.label || `${s.utilization}% utilization rate`}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-sm font-black text-slate-800 tracking-tight">
+                                    ₹{s.amountCr.toLocaleString('en-IN')} <span className="text-[9px] text-slate-400">Cr</span>
+                                </p>
+                                <p className="text-[9px] font-bold" style={{ color: s.color }}>{pct}% of budget</p>
+                            </div>
+                        </div>
+                        {/* Utilization micro-bar */}
+                        <div className="px-3 pb-2">
+                            <div className="w-full h-1 rounded-full bg-slate-100 overflow-hidden">
+                                <motion.div
+                                    className="h-full rounded-full"
+                                    style={{ backgroundColor: s.color }}
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.min(100, s.utilization)}%` }}
+                                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                                />
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+            })()}
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════
    COMPONENT – Division Card
    ═══════════════════════════════════════════════════════════════ */
 
@@ -347,12 +666,22 @@ function DivisionCard({ division, delay }) {
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
         >
+            {/* Glow ring behind card on hover */}
+            <motion.div
+                className="absolute -inset-[1px] rounded-2xl pointer-events-none"
+                style={{
+                    background: `linear-gradient(135deg, ${division.color}30, transparent, ${division.color}15)`,
+                }}
+                animate={{ opacity: hover ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+            />
+
             <motion.div
                 className="relative rounded-2xl bg-white overflow-hidden cursor-default"
                 animate={{
                     y: hover ? -6 : 0,
                     boxShadow: hover
-                        ? `0 20px 40px -12px ${division.color}30, 0 4px 12px rgba(0,0,0,0.06)`
+                        ? `0 24px 48px -12px ${division.color}25, 0 8px 16px rgba(0,0,0,0.06)`
                         : `0 4px 20px -4px ${division.color}10, 0 1px 3px rgba(0,0,0,0.04)`,
                 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -363,35 +692,75 @@ function DivisionCard({ division, delay }) {
                     borderBottom: `1px solid ${division.color}20`,
                 }}
             >
-                {/* Hover glow overlay */}
+                {/* Animated gradient overlay on hover */}
                 <motion.div
                     className="absolute inset-0 pointer-events-none"
-                    style={{ background: `linear-gradient(135deg, ${division.color}08, transparent)` }}
+                    style={{
+                        background: `linear-gradient(135deg, ${division.color}06, transparent 60%, ${division.color}04)`,
+                    }}
                     animate={{ opacity: hover ? 1 : 0 }}
                     transition={{ duration: 0.3 }}
                 />
+
+                {/* Floating sparkle particles on hover */}
+                {hover && [0, 1, 2].map((i) => (
+                    <motion.div
+                        key={`sparkle-${i}`}
+                        className="absolute rounded-full pointer-events-none"
+                        style={{
+                            width: 3,
+                            height: 3,
+                            backgroundColor: division.color,
+                            left: `${20 + i * 30}%`,
+                            opacity: 0.4,
+                        }}
+                        initial={{ bottom: '10%', opacity: 0 }}
+                        animate={{
+                            bottom: ['10%', '90%'],
+                            opacity: [0, 0.5, 0],
+                            x: [0, (i - 1) * 15],
+                        }}
+                        transition={{
+                            duration: 1.8 + i * 0.3,
+                            repeat: Infinity,
+                            delay: i * 0.4,
+                            ease: 'easeOut',
+                        }}
+                    />
+                ))}
 
                 {/* Verified badge top-right */}
                 <div className="absolute top-3 right-3">
                     <motion.div
                         className="w-8 h-8 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: `${division.color}10`, border: `1.5px solid ${division.color}25` }}
-                        animate={{ rotate: hover ? 360 : 0 }}
+                        style={{
+                            backgroundColor: `${division.color}10`,
+                            border: `1.5px solid ${division.color}25`,
+                        }}
+                        animate={{
+                            rotate: hover ? 360 : 0,
+                            scale: hover ? 1.1 : 1,
+                            boxShadow: hover ? `0 0 12px ${division.color}20` : '0 0 0 transparent',
+                        }}
                         transition={{ duration: 0.6 }}
                     >
                         <ShieldCheck size={15} style={{ color: division.color }} />
                     </motion.div>
                 </div>
 
-                <div className="p-5 pt-4">
+                <div className="p-5 pt-4 relative z-10">
                     {/* Icon + Name */}
                     <div className="flex items-center gap-2 mb-2">
-                        <div
+                        <motion.div
                             className="w-7 h-7 rounded-lg flex items-center justify-center"
                             style={{ backgroundColor: `${division.color}12` }}
+                            animate={{
+                                backgroundColor: hover ? `${division.color}20` : `${division.color}12`,
+                            }}
+                            transition={{ duration: 0.3 }}
                         >
                             <DivIcon size={14} style={{ color: division.color }} />
-                        </div>
+                        </motion.div>
                         <h4
                             className="text-xs font-extrabold tracking-widest"
                             style={{ color: division.color }}
@@ -401,17 +770,20 @@ function DivisionCard({ division, delay }) {
                     </div>
 
                     {/* Amount */}
-                    <p className="text-2xl font-black text-slate-900 mb-1.5 tracking-tight">
+                    <p className="text-2xl font-black text-slate-900 mb-1 tracking-tight">
                         {division.amount}
                     </p>
 
                     {/* Focus */}
-                    <p className="text-[11px] text-slate-400 leading-relaxed mb-4">
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
                         {division.focus}
                     </p>
 
+                    {/* Sector Budget Visualization */}
+                    <SectorBudgetViz sectors={division.sectors} divisionColor={division.color} delay={delay} />
+
                     {/* Hash info */}
-                    <div className="border-t border-slate-100 pt-3 space-y-1">
+                    <div className="border-t border-slate-100 pt-3 mt-3 space-y-1">
                         <div className="flex items-center gap-3 text-[10px] font-mono text-slate-300">
                             <span className="uppercase text-slate-400 font-sans font-bold text-[9px] w-8">PREV</span>
                             <span>{division.prevHash}</span>
@@ -433,6 +805,9 @@ function DivisionCard({ division, delay }) {
 
 export default function BudgetOverview() {
     const { filteredData, filters, meta } = useFilterContext();
+
+    // Pre-compute sector data once
+    const sectorData = useMemo(() => computeSectorData(), []);
 
     // Sum across divisions purely for budget tracking (exclude environment data since it's sqkm)
     const metrics = { amravati: 0, aurangabad: 0, nagpur: 0 };
@@ -457,7 +832,8 @@ export default function BudgetOverview() {
     const dynamicDivisions = Object.keys(DIVISIONS_CONFIG).map(id => ({
         id,
         ...DIVISIONS_CONFIG[id],
-        amount: `₹${metrics[id].toLocaleString('en-IN', { maximumFractionDigits: 1 })} Cr`
+        amount: `₹${metrics[id].toLocaleString('en-IN', { maximumFractionDigits: 1 })} Cr`,
+        sectors: sectorData[id] || {},
     }));
 
     // Construct the active Fiscal Year display string based on context state
