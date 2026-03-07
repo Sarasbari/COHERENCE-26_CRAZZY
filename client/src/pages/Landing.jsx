@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BarChart3, Shield, Zap, TrendingUp, Brain, ArrowRight } from 'lucide-react';
 import { APP_NAME, APP_TAGLINE } from '../config/constants';
@@ -23,9 +23,14 @@ const stats = [
 
 export default function Landing() {
     const navigate = useNavigate();
-    const { login, user } = useAuth();
+    const { login, logout, user } = useAuth();
 
     const handleGetStarted = () => {
+        navigate('/dashboard');
+    };
+
+    const handleLogin = async () => {
+        await login();
         navigate('/dashboard');
     };
 
@@ -33,11 +38,24 @@ export default function Landing() {
         <div className="min-h-screen bg-[#F8FAFC] overflow-hidden">
             {/* Nav */}
             <nav className="flex items-center justify-between px-8 py-5 border-b border-[#E2E8F0] bg-white">
-                <div className="flex items-center gap-3">
+                <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition">
                     <img src={logoUrl} alt="Logo" className="w-10 h-10 rounded-xl bg-white p-0.5 object-contain shadow-sm border border-[#E2E8F0]" />
                     <span className="font-bold text-[#0F172A] text-xl">{APP_NAME}</span>
+                </Link>
+                <div className="flex items-center gap-4">
+                    {user ? (
+                        <div className="flex items-center gap-3">
+                            <img src={user.photoURL} alt="Avatar" className="w-8 h-8 rounded-full border border-gray-200" referrerPolicy="no-referrer" />
+                            <span className="text-sm font-medium text-gray-700 hidden sm:block">{user.displayName}</span>
+                            <button onClick={logout} className="text-sm text-red-500 font-medium hover:text-red-700 transition">Logout</button>
+                        </div>
+                    ) : (
+                        <button onClick={handleLogin} className="flex items-center gap-2 bg-white border border-[#E2E8F0] rounded-lg px-4 py-2 text-sm font-medium text-[#0F172A] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3B82F6] transition shadow-sm">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" className="w-5 h-5" />
+                            Sign in with Google
+                        </button>
+                    )}
                 </div>
-
             </nav>
 
             {/* Hero — Two-column: Text Left + Globe Right */}

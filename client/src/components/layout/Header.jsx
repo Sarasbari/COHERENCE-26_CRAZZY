@@ -1,5 +1,6 @@
 import { Bell, ChevronDown, Download, User, Check, FileText } from 'lucide-react';
 import { useFilterContext } from '../../context/FilterContext';
+import { useAuth } from '../../context/AuthContext';
 import { useState, useRef, useEffect } from 'react';
 import { DIVISIONS } from '../../config/constants';
 import { useNavigate } from 'react-router-dom';
@@ -67,9 +68,15 @@ function Dropdown({ value, options, onChange, placeholder, minWidth = "140px" })
 
 export default function Header() {
     const { filteredData, filters, updateFilter, meta } = useFilterContext();
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     const handleExportCSV = () => {
+        if (!user) {
+            alert("Please sign in from the home page to download reports.");
+            return;
+        }
+
         if (!filteredData || filteredData.length === 0) {
             alert("No data available to export.");
             return;
@@ -104,6 +111,10 @@ export default function Header() {
     };
 
     const handleExportPDF = () => {
+        if (!user) {
+            alert("Please sign in from the home page to download reports.");
+            return;
+        }
         navigate('/dashboard/export');
     };
 
