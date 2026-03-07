@@ -2,7 +2,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
     LayoutDashboard, TrendingUp, AlertTriangle, BarChart2,
-    ArrowLeftRight, Droplets, GitCompareArrows, Languages, Landmark
+    ArrowLeftRight, Droplets, GitCompareArrows, Languages, Landmark, UserCircle
 } from 'lucide-react';
 import { APP_NAME } from '../../config/constants';
 import logoUrl from '../../assets/logo.png';
@@ -21,7 +21,7 @@ const navItems = [
 
 export default function Sidebar() {
     const location = useLocation();
-    const { user, logout } = useAuth();
+    const { user, login, logout } = useAuth();
 
     return (
         <aside className="w-60 h-screen bg-[#1E3A8A] flex flex-col fixed left-0 top-0 z-40">
@@ -57,9 +57,9 @@ export default function Sidebar() {
                 })}
             </nav>
 
-            {/* User Profile */}
-            {user && (
-                <div className="p-4 border-t border-white/10 mt-auto">
+            {/* User Profile / Login */}
+            <div className="p-4 border-t border-white/10 mt-auto">
+                {user ? (
                     <div className="flex items-center gap-3">
                         <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full border-2 border-white/20 bg-white/10" referrerPolicy="no-referrer" />
                         <div className="flex flex-col flex-1 min-w-0">
@@ -67,8 +67,18 @@ export default function Sidebar() {
                             <button onClick={logout} className="text-xs text-left text-white/60 hover:text-white transition">Sign Out</button>
                         </div>
                     </div>
-                </div>
-            )}
+                ) : (
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full border-2 border-white/20 bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <UserCircle size={20} className="text-white/40" />
+                        </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                            <span className="text-sm font-semibold text-white/80 truncate">Guest User</span>
+                            <button onClick={login} className="text-xs text-left text-blue-300 hover:text-blue-200 transition font-medium">Sign in</button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </aside>
     );
 }

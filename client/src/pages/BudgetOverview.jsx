@@ -23,7 +23,7 @@ const SECTOR_COLORS = {
    ═══════════════════════════════════════════════════════════════ */
 
 function computeSectorData(filteredData) {
-    const result = {};
+    const result = { amravati: {}, aurangabad: {}, nagpur: {} };
 
     if (!filteredData || filteredData.length === 0) return result;
 
@@ -428,17 +428,17 @@ function MiniDonut({ items, total, size = 48, strokeWidth = 5, activeSector, onH
 function SectorBudgetViz({ sectors, divisionColor, delay = 0 }) {
     const [activeSector, setActiveSector] = useState(null);
 
-    if (!sectors) return null;
-
-    const items = Object.entries(sectors).map(([key, data]) => ({
+    // Provide empty object fallback
+    const safeSectors = sectors || {};
+    const items = Object.entries(safeSectors).map(([key, data]) => ({
         key,
         color: SECTOR_COLORS[key] || '#94A3B8',
-        amountCr: data.amountCr || 0,
-        utilization: data.utilization || 0,
-        label: data.label || null,
+        amountCr: data?.amountCr || 0,
+        utilization: data?.utilization || 0,
+        label: data?.label || null,
     }));
 
-    const total = items.reduce((s, i) => s + i.amountCr, 0);
+    const total = items.reduce((s, i) => s + (i.amountCr || 0), 0);
     if (total === 0) return null;
 
     return (
@@ -783,12 +783,15 @@ export default function BudgetOverview() {
 
     const totalBudgetStr = totalBudgetCrores.toLocaleString('en-IN', { maximumFractionDigits: 1 });
 
-    const dynamicDivisions = Object.keys(DIVISIONS_CONFIG).map(id => ({
-        id,
-        ...DIVISIONS_CONFIG[id],
-        amount: `₹${metrics[id].toLocaleString('en-IN', { maximumFractionDigits: 1 })} Cr`,
-        sectors: sectorData[id] || {},
-    }));
+    const dynamicDivisions = Object.keys(DIVISIONS_CONFIG).map(id => {
+        const divMetrics = metrics[id] || 0;
+        return {
+            id,
+            ...DIVISIONS_CONFIG[id],
+            amount: `₹${divMetrics.toLocaleString('en-IN', { maximumFractionDigits: 1 })} Cr`,
+            sectors: sectorData[id] || {},
+        };
+    });
 
     // Construct the active Fiscal Year display string based on context state
     let fyDisplayString = "All Years";
