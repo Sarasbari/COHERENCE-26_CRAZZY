@@ -205,7 +205,7 @@ export default function ChatBot() {
                                     <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
                                 </div>
                                 <div>
-                                    <h2 className="text-white font-bold text-base leading-tight">ARTHASHEtra AI</h2>
+                                    <h2 className="text-white font-bold text-base leading-tight">ARTHRAKSHAK AI</h2>
                                     <p className="text-xs text-gray-400 leading-tight">Powered by Llama 3.3 70B</p>
                                 </div>
                             </div>
@@ -229,7 +229,7 @@ export default function ChatBot() {
                                         <Bot size={32} className="text-orange-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-white font-bold text-lg mb-1">Ask ARTHASHEtra AI</h3>
+                                        <h3 className="text-white font-bold text-lg mb-1">Ask ARTHRAKSHAK AI</h3>
                                         <p className="text-sm text-gray-400 max-w-[250px] mx-auto">
                                             Answers grounded in Maharashtra state budget data
                                         </p>

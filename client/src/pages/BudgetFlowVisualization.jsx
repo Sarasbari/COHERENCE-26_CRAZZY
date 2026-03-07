@@ -876,7 +876,7 @@ export default function BudgetFlowVisualization() {
                 className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-6 border-t border-slate-200/60 text-center relative z-10"
             >
                 <p className="text-[11px] text-slate-400">
-                    © {new Date().getFullYear()} ARTHASHEtra AI • Budget Flow Intelligence •
+                    © {new Date().getFullYear()} ARTHRAKSHAK AI • Budget Flow Intelligence •
                     Data:{' '}
                     <a
                         href="https://data.gov.in"
