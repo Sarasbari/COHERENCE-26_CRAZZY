@@ -6,10 +6,7 @@ import {
 } from 'lucide-react';
 import { useFilterContext } from '../context/FilterContext';
 
-// Local JSON for sector breakdowns
-import agriData from '../data/maharashtra_agriculture.json';
-import healthData from '../data/maharashtra_health_budget_data.json';
-import envData from '../data/maharashtra_environment_real.json';
+// Data is now fetched dynamically from FilterContext
 
 /* ═══════════════════════════════════════════════════════════════
    SECTOR COLOURS
@@ -25,63 +22,54 @@ const SECTOR_COLORS = {
    HELPER – Compute per-division sector budgets from JSON
    ═══════════════════════════════════════════════════════════════ */
 
-function computeSectorData() {
+function computeSectorData(filteredData) {
     const result = {};
 
-    // ── Healthcare (NHM data) — latest FY per division ──
-    ['Amravati', 'Aurangabad', 'Nagpur'].forEach((div) => {
-        const recs = healthData.filter((r) => r.Division === div);
-        const latestFY = recs.length
-            ? recs.sort((a, b) => b.Financial_Year.localeCompare(a.Financial_Year))[0].Financial_Year
-            : '2022-23';
-        const latest = recs.filter((r) => r.Financial_Year === latestFY);
-        const approved = latest.reduce((s, r) => s + (r.NHM_Approved_Budget_INR_Cr || 0), 0);
-        const spent = latest.reduce((s, r) => s + (r.NHM_Actual_Expenditure_INR_Cr || 0), 0);
-        const avgUtil = latest.length
-            ? latest.reduce((s, r) => s + (r.Utilization_Rate_Pct || 0), 0) / latest.length
-            : 0;
-        if (!result[div.toLowerCase()]) result[div.toLowerCase()] = {};
-        result[div.toLowerCase()].Healthcare = {
-            amountCr: parseFloat(approved.toFixed(1)),
-            utilization: parseFloat(avgUtil.toFixed(0)),
+    if (!filteredData || filteredData.length === 0) return result;
+
+    // Initialize accumulators
+    ['amravati', 'aurangabad', 'nagpur'].forEach(div => {
+        result[div] = {
+            Healthcare: { _alloc: 0, _spent: 0, amountCr: 0, utilization: 0 },
+            Agriculture: { _alloc: 0, _spent: 0, amountCr: 0, utilization: 0 },
+            Environment: { _forestCover: 0, _geoArea: 0, amountCr: 0, utilization: 0, label: '' }
         };
     });
 
-    // ── Agriculture — latest year per division ──
-    ['Amravati', 'Aurangabad', 'Nagpur'].forEach((div) => {
-        const recs = agriData.filter((r) => r.Division === div);
-        const latestYear = recs.length ? Math.max(...recs.map((r) => r.Year)) : 2025;
-        const latest = recs.filter((r) => r.Year === latestYear);
-        const alloc = latest.reduce((s, r) => s + (r.Budget_Allocated_Lakhs || 0), 0);
-        const util = latest.reduce((s, r) => s + (r.Budget_Utilized_Lakhs || 0), 0);
-        if (!result[div.toLowerCase()]) result[div.toLowerCase()] = {};
-        result[div.toLowerCase()].Agriculture = {
-            amountCr: parseFloat((alloc / 100).toFixed(1)),
-            utilization: alloc > 0 ? parseFloat(((util / alloc) * 100).toFixed(0)) : 0,
-        };
+    filteredData.forEach(item => {
+        const div = item.division;
+        if (!result[div]) return; // ignore unknown divisions
+
+        if (item.department === 'public_health') {
+            result[div].Healthcare._alloc += (item.allocated || 0);
+            result[div].Healthcare._spent += (item.spent || 0);
+        } else if (item.department === 'agriculture') {
+            result[div].Agriculture._alloc += (item.allocated || 0);
+            result[div].Agriculture._spent += (item.spent || 0);
+        } else if (item.department === 'environment') {
+            // Raw doc contains the specific coverage metrics needed for env
+            result[div].Environment._forestCover += (item._raw?.forest_cover_sqkm || 0);
+            result[div].Environment._geoArea += (item._raw?.geo_area_sqkm || 0);
+        }
     });
 
-    // ── Environment — forest cover budget proxy (use state totals, allocate proportionally by geo-area) ──
-    const districtData = envData.districtForestCover || [];
-    ['Amravati', 'Aurangabad', 'Nagpur'].forEach((div) => {
-        const recs = districtData.filter((r) => r.division === div);
-        // latest per district
-        const latest = {};
-        recs.forEach((r) => {
-            if (!latest[r.district] || r.data_year > latest[r.district].data_year) latest[r.district] = r;
-        });
-        const vals = Object.values(latest);
-        const totalForest = vals.reduce((s, r) => s + (r.forest_cover_sqkm || 0), 0);
-        const totalGeo = vals.reduce((s, r) => s + (r.geo_area_sqkm || 0), 0);
+    // Finalize computed metrics
+    ['amravati', 'aurangabad', 'nagpur'].forEach(div => {
+        const hc = result[div].Healthcare;
+        hc.amountCr = parseFloat(hc._alloc.toFixed(1));
+        hc.utilization = hc._alloc > 0 ? parseFloat(((hc._spent / hc._alloc) * 100).toFixed(0)) : 0;
+
+        const ag = result[div].Agriculture;
+        ag.amountCr = parseFloat(ag._alloc.toFixed(1));
+        ag.utilization = ag._alloc > 0 ? parseFloat(((ag._spent / ag._alloc) * 100).toFixed(0)) : 0;
+
+        const env = result[div].Environment;
+        const totalForest = env._forestCover;
+        const totalGeo = env._geoArea;
         const coverPct = totalGeo > 0 ? ((totalForest / totalGeo) * 100) : 0;
-        // Use a rough budget proxy: ₹15 Cr per 1000 sq-km forest cover
-        const budgetProxy = parseFloat(((totalForest / 1000) * 15).toFixed(1));
-        if (!result[div.toLowerCase()]) result[div.toLowerCase()] = {};
-        result[div.toLowerCase()].Environment = {
-            amountCr: budgetProxy,
-            utilization: parseFloat(coverPct.toFixed(0)),
-            label: `${totalForest.toFixed(0)} km² forest`,
-        };
+        env.amountCr = parseFloat(((totalForest / 1000) * 15).toFixed(1)); // budget proxy
+        env.utilization = parseFloat(coverPct.toFixed(0));
+        env.label = `${totalForest.toFixed(0)} km² forest`;
     });
 
     return result;
@@ -96,25 +84,19 @@ const DIVISIONS_CONFIG = {
         name: 'AMRAVATI',
         focus: 'Cotton Belt + Irrigation + Rural Dev',
         color: '#16A34A',
-        icon: Leaf,
-        prevHash: '0x2e...0b12',
-        currHash: '5c77...f954'
+        icon: Leaf
     },
     aurangabad: {
         name: 'AURANGABAD',
         focus: 'Marathwada Dev. + Water Grid + Edu',
         color: '#3B82F6',
-        icon: Wheat,
-        prevHash: '0206...1340',
-        currHash: '3463...6da7',
+        icon: Wheat
     },
     nagpur: {
         name: 'NAGPUR',
         focus: 'Vidarbha Irrigation + Metro + Industry',
         color: '#F59E0B',
-        icon: Sprout,
-        prevHash: '0b84...2965',
-        currHash: '5977...158c',
+        icon: Sprout
     }
 };
 
@@ -134,24 +116,6 @@ function SecuredBadge() {
             <CheckCircle2 size={12} />
             SECURED
         </span>
-    );
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   COMPONENT – Hash Row
-   ═══════════════════════════════════════════════════════════════ */
-
-function HashRow({ prev, curr, light = false }) {
-    return (
-        <div className={`flex items-center gap-5 text-[11px] font-mono mt-2.5 ${light ? 'text-white/40' : 'text-slate-400'}`}>
-            <span className="flex items-center gap-1.5">
-                <Link2 size={10} className={light ? 'text-white/30' : 'text-slate-300'} />
-                prev: <span className={light ? 'text-white/55' : 'text-slate-500'}>{prev}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-                curr: <span className={light ? 'text-white/55' : 'text-slate-500'}>{curr}</span>
-            </span>
-        </div>
     );
 }
 
@@ -354,7 +318,7 @@ function MinistryCard({ totalBudgetStr, fyDisplayString }) {
                     </div>
                 </div>
 
-                <HashRow prev="0808001...80880E0" curr="8e4e5c...89fe85" light />
+
             </div>
         </motion.div>
     );
@@ -405,7 +369,7 @@ function TreasuryCard({ totalBudgetStr, fyDisplayString }) {
                     </div>
                 </div>
 
-                <HashRow prev="0a4c9c...89fd05" curr="a29c7d...bbc631" />
+
             </div>
         </motion.div>
     );
@@ -782,17 +746,7 @@ function DivisionCard({ division, delay }) {
                     {/* Sector Budget Visualization */}
                     <SectorBudgetViz sectors={division.sectors} divisionColor={division.color} delay={delay} />
 
-                    {/* Hash info */}
-                    <div className="border-t border-slate-100 pt-3 mt-3 space-y-1">
-                        <div className="flex items-center gap-3 text-[10px] font-mono text-slate-300">
-                            <span className="uppercase text-slate-400 font-sans font-bold text-[9px] w-8">PREV</span>
-                            <span>{division.prevHash}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-[10px] font-mono text-slate-300">
-                            <span className="uppercase text-slate-400 font-sans font-bold text-[9px] w-8">CURR</span>
-                            <span>{division.currHash}</span>
-                        </div>
-                    </div>
+
                 </div>
             </motion.div>
         </motion.div>
@@ -806,8 +760,8 @@ function DivisionCard({ division, delay }) {
 export default function BudgetOverview() {
     const { filteredData, filters, meta } = useFilterContext();
 
-    // Pre-compute sector data once
-    const sectorData = useMemo(() => computeSectorData(), []);
+    // Pre-compute sector data functionally synced from context
+    const sectorData = useMemo(() => computeSectorData(filteredData), [filteredData]);
 
     // Sum across divisions purely for budget tracking (exclude environment data since it's sqkm)
     const metrics = { amravati: 0, aurangabad: 0, nagpur: 0 };

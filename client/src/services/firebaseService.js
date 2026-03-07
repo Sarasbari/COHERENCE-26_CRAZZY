@@ -100,14 +100,14 @@ function normalizeRecord(doc, source) {
 
     if (source === COLLECTIONS.AGRICULTURE) {
         // maharashtra_agriculture: budget_allocated_lakhs, budget_utilized_lakhs
-        allocated = Number(doc.budget_allocated_lakhs) || 0;
-        spent = Number(doc.budget_utilized_lakhs) || 0;
+        allocated = (Number(doc.budget_allocated_lakhs) || 0) / 100;
+        spent = (Number(doc.budget_utilized_lakhs) || 0) / 100;
         released = allocated; // no separate release field
     } else if (source === COLLECTIONS.AGRI_FINANCE) {
         // maharashtra_agri_finance: budget_sanctioned_lakhs, amount_released_lakhs, amount_spent_lakhs
-        allocated = Number(doc.budget_sanctioned_lakhs) || 0;
-        released = Number(doc.amount_released_lakhs) || 0;
-        spent = Number(doc.amount_spent_lakhs) || 0;
+        allocated = (Number(doc.budget_sanctioned_lakhs) || 0) / 100;
+        released = (Number(doc.amount_released_lakhs) || 0) / 100;
+        spent = (Number(doc.amount_spent_lakhs) || 0) / 100;
     } else if (source === COLLECTIONS.HEALTH_BUDGET) {
         // maharashtra_health_budget: nhm_approved_budget_inr_cr, nhm_funds_released_inr_cr, nhm_actual_expenditure_inr_cr
         // Values are in Crores
