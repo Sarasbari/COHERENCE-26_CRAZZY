@@ -16,7 +16,7 @@ const features = [
 
 const stats = [
     { label: 'Divisions Tracked', value: '3' },
-    { label: 'Departments Monitored', value: '8' },
+    { label: 'Sectors Monitored', value: '3' },
     { label: 'Years of Data', value: '5' },
     { label: 'Detection Layers', value: '3' },
 ];
