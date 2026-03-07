@@ -5,6 +5,7 @@ import {
     ArrowLeftRight, Droplets
 } from 'lucide-react';
 import { APP_NAME } from '../../config/constants';
+import logoUrl from '../../assets/logo.png';
 
 const navItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
@@ -20,10 +21,8 @@ export default function Sidebar() {
     return (
         <aside className="w-60 h-screen bg-[#1E3A8A] flex flex-col fixed left-0 top-0 z-40">
             {/* Logo */}
-            <Link to="/" className="px-5 py-6 flex items-center gap-3 border-b border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
-                <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
-                    <img src="/logo.png" alt="ARTHASHEtra Logo" className="w-full h-full object-contain" />
-                </div>
+            <div className="px-5 py-6 flex items-center gap-3 border-b border-white/10">
+                <img src={logoUrl} alt="Logo" className="w-9 h-9 rounded-lg object-cover bg-white p-0.5 flex-shrink-0" />
                 <div>
                     <h1 className="font-bold text-white text-sm leading-tight">{APP_NAME}</h1>
                     <p className="text-[11px] text-white/60 leading-tight">Maharashtra State</p>
@@ -53,13 +52,6 @@ export default function Sidebar() {
                 })}
             </nav>
 
-            {/* Bottom: Switch Role */}
-            <div className="px-3 py-4 border-t border-white/10">
-                <button className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors w-full">
-                    <ArrowLeftRight size={18} />
-                    <span>Switch to Officer Role</span>
-                </button>
-            </div>
         </aside>
     );
 }
