@@ -69,12 +69,12 @@ export const QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
 // ANOMALY THRESHOLDS
 // ========================
 export const THRESHOLDS = {
-    underspending: 0.40,       // < 40% utilization = flagged
-    overspendingSpike: 1.50,   // > 150% quarter-on-quarter = flagged
+    underspending: 0.35,       // < 35% utilization = flagged
+    overspendingSpike: 1.40,   // > 140% quarter-on-quarter = flagged
     zeroSpendDays: 90,         // Released but 0 spent after 90 days
-    allocationReleaseGap: 0.20, // > 20% gap between allocated and released
+    allocationReleaseGap: 0.25, // > 25% gap between allocated and released
     fundLapseRiskQ4: 0.50,     // Q4 with < 50% spent = lapse risk
-    zScoreThreshold: 2.0,      // Z-score > 2 standard deviations = outlier
+    zScoreThreshold: 2.5,      // Robust Z-score > 2.5 = outlier
 };
 
 // ========================

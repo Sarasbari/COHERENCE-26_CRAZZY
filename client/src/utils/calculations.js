@@ -4,11 +4,36 @@ import { THRESHOLDS } from '../config/constants';
 // Z-SCORE CALCULATION
 // ========================
 export function calculateZScore(value, dataset) {
-    const mean = dataset.reduce((sum, v) => sum + v, 0) / dataset.length;
-    const variance = dataset.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / dataset.length;
-    const stdDev = Math.sqrt(variance);
-    if (stdDev === 0) return 0;
-    return (value - mean) / stdDev;
+    if (!dataset || dataset.length < 2) return 0;
+    
+    // Sort array for median calculations
+    const sorted = [...dataset].sort((a, b) => a - b);
+    
+    // Helper to calculate median
+    const getMedian = (arr) => {
+        const mid = Math.floor(arr.length / 2);
+        return arr.length % 2 !== 0 ? arr[mid] : (arr[mid - 1] + arr[mid]) / 2;
+    };
+
+    const median = getMedian(sorted);
+    
+    // Calculate Median Absolute Deviation (MAD)
+    const deviations = dataset.map(v => Math.abs(v - median));
+    const sortedDeviations = [...deviations].sort((a, b) => a - b);
+    const mad = getMedian(sortedDeviations);
+        
+    // If MAD is exactly zero, fallback to sample standard deviation
+    // to avoid division by zero when highly clustered data exists.
+    if (mad === 0) {
+        const mean = dataset.reduce((sum, v) => sum + v, 0) / dataset.length;
+        const variance = dataset.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / (dataset.length - 1); // Bessel's correction
+        const stdDev = Math.sqrt(variance);
+        if (stdDev === 0) return 0;
+        return (value - mean) / stdDev;
+    }
+    
+    // Modified Z-Score calculation (0.6745 is the ~75th percentile of normal distribution)
+    return (0.6745 * (value - median)) / mad;
 }
 
 // ========================
